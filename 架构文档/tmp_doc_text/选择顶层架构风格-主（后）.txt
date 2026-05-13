@@ -1,0 +1,297 @@
+﻿中小餐饮数字化运营支撑系统（优化版 v2.3 — 安全与性能强化 2026落地版）
+一、 顶层架构
+架构风格：模块化单体 + 事件驱动 + 异步任务 + 安全/限流/监控加固
+强化点
+1.RLS（Row Level Security）增强
+·  每条订单/数据表加 store_id/tenant_id 索引，使用 policy 过滤。
+·  高峰期使用 pg_stat_statements 做 RLS 性能分析
+·  必要时按 store_id 分区表，减少锁竞争。
+JWT & Token 管理
+·  access token 生命周期 5–15 分钟，refresh token 1–7 天。
+·  rotate 时同时 revoke refresh token（Redis 黑名单管理）。
+·  fastapi-users handler 可自定义 rotation。
+3.Celery 安全/权限
+·  Celery worker 专用低权限 Redis 用户（ACL 限定 queue）。
+·  任务 payload 脱敏或加密，防止敏感数据泄露。
+·  避免 Celery 暴露公网端口。
+4.WebSocket/SSE 高并发控制
+·  SSE fallback + 连接上限（每用户 5 个）。
+·  Redis Streams 广播替代全量推送，减少单点压力。
+·  前端订阅按门店/区域聚合，服务器端监控连接数/内存使用。
+5.密钥管理
+·  CI/CD secrets 通过 HashiCorp Vault / AWS Secrets Manager / sops-git 管理。
+·  Docker/K8s 使用 secrets volume 替代 .env 明文存储。
+测试覆盖增强
+·  chaos 测试（Redis 连接 kill / 网络模拟抖动）。
+·  RLS 策略测试（不同用户/门店查询）。
+· 异常/边界条件事件流测试。
+7.灾备/高可用
+·  PostgreSQL 主从 + pgBouncer 连接池。
+·Redis Sentinel/Cluster，Streams 消费组多 worker。
+·  确保事件流和 DB 关键表高可用。
+技术栈
+序号
+类别
+核心技术选择
+是否必选
+当前状态
+备注 / 完整性说明
+1
+项目/依赖管理
+uv (Astral)
+必选
+已确认
+取代 pip/venv/poetry，速度最快
+2
+Web/API 框架
+FastAPI (异步优先)
+必选
+已确认
+高性能 + 类型安全 + 工具暴露方便
+3
+数据模型/校验
+SQLModel + Pydantic v2 (strict mode)
+必选
+已确认
+数据库 + LLM schema 双统一
+4
+数据库
+PostgreSQL 18+ (schema隔离 + RLS)
+必选
+已确认
+多租户隔离 + 高并发
+5
+缓存/事件总线
+Redis 7+ (Streams 模式 + ACL)
+必选
+已确认
+可靠事件投递 + 限流 backend，建议 Dead-letter queue
+6
+大模型调用
+Grok / OpenAI / Claude / Qwen2 / Gemini Flash
+必选
+已确认
+支持原生 Tool/Function Calling 模型，至少备选2家
+7
+Tool Calling 核心框架
+LangGraph (主) + LangChain-core
+必选
+已确认
+状态机 + 可视化工作流，2026生产首选
+8
+工具定义/执行
+@tool 装饰器 + FastAPI 端点包装
+必选
+已确认
+Pydantic schema 自动给 LLM
+9
+身份/认证
+fastapi-users (SQLModel adapter)
+必选
+已确认
+JWT + refresh + scopes + ownership check
+10
+限流/防滥用
+fastapi-limiter (Redis backend)
+必选
+已确认
+防 LLM 滥用工具、DDoS、token爆炸
+11
+日志/结构化
+structlog
+推荐
+已确认
+审计 + 调试 LLM 调用链
+12
+可观测性/追踪
+LangSmith / Langfuse + Prometheus + Grafana
+强烈推荐
+已确认
+追踪 LLM 调用 + 工具执行 + token消耗
+13
+测试
+pytest + pytest-asyncio + testcontainers
+必选
+已确认
+Mock Redis/DB + 集成测试 Tool Calling
+14
+代码质量
+ruff + pyright + pre-commit
+必选
+已确认
+格式/类型/边界强制检查
+15
+安全扫描
+OWASP ZAP / nuclei (CI集成)
+必选
+已确认
+生产前自动化扫描
+16
+边缘推理（可选）
+Hugging Face Transformers + Optimum / ONNX Runtime
+可选
+规划中
+Whisper / Qwen2-7B / YOLOv10 量化版
+17
+边缘硬件（可选）
+Rockchip RK3588 / NVIDIA Jetson Orin Nano
+可选
+规划中
+店内本地推理，降低云延迟/成本
+18
+密钥/Secret管理
+Vault / AWS Secrets Manager / sops-git
+增强
+可规划
+管理 LLM、数据库、Redis 密钥，禁止明文存储
+19
+高风险操作审批
+内置审批机制
+增强
+可规划
+库存调整、促销、价格修改需员工/店长审批
+20
+事件流高可用与回放
+Redis Streams + Dead-letter queue
+增强
+可规划
+防止事件丢失，可重放事件用于模型训练
+21
+高峰任务扩容策略
+弹性 Celery Worker / GPU扩容
+增强
+可规划
+动态扩容 Worker，保证高峰期响应速度
+22
+日志聚合/可观测性增强
+structlog + Grafana Loki / ELK
+增强
+可规划
+多模块统一监控 LLM调用、工具执行和异常
+23
+长期数据分析/事件管道
+OLAP / 数据湖 (ClickHouse / Redshift / BigQuery)
+可选
+可规划
+存储历史数据做模型训练、趋势分析和回放
+项目目录结构
+restaurant-analytics/                          # 项目根目录（餐饮数字化运营支撑系统）
+├── alembic/                                   # 数据库迁移（Alembic标准目录）
+│   ├── env.py                                 # 关键：显式导入所有域的 models，支持多schema
+│   ├── script.py.mako
+│   └── versions/                              # 自动生成的迁移脚本
+├── alembic.ini                                # Alembic配置文件
+├── pyproject.toml                             # uv 依赖管理（所有依赖版本统一在此）
+├── ruff.toml                                  # 代码格式/ lint 规则
+├── .pre-commit-config.yaml                    # pre-commit hooks（ruff、pyright、import-linter、安全扫描入口）
+├── .github/                                   # CI/CD 配置
+│   └── workflows/
+│       ├── ci.yml                             # 测试 + lint + 安全扫描（ruff/pyright + OWASP ZAP/nuclei）
+│       └── deploy.yml                         # 部署到 K8s/Railway/Fly.io（后期）
+├── docker-compose.yml                         # 开发环境（postgres + redis + loki + grafana 等）
+├── Dockerfile                                 # 生产镜像构建（multi-stage + uv sync）
+├── k8s/                                       # K8s 部署清单（可选，后期弹性扩容用）
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   └── hpa.yaml                               # Horizontal Pod Autoscaler（高峰扩容）
+├── src/                                       # 核心源代码
+│   ├── __init__.py
+│   ├── main.py                                # FastAPI app 入口 + lifespan（Redis Streams group、limiter、Vault init）
+│   ├── config.py                              # Settings（pydantic-settings + Vault/sops 读取 secrets）
+│   ├── dependencies.py                        # 全局依赖注入：get_db, get_redis, current_active_user, ownership_check
+│   ├── shared/                                # 跨域共享（极少，严格控制）
+│   │   ├── db/                                # 数据库相关
+│   │   │   ├── engine.py                      # async engine + pool_size/max_overflow + RLS session factory
+│   │   │   └── session.py                     # get_session（带 RLS current_store_id 设置）
+│   │   ├── redis/                             # Redis 操作封装
+│   │   │   ├── client.py                      # redis_client + ACL + TLS
+│   │   │   ├── streams.py                     # Streams publish/consume + 门店独立Stream + payload Fernet加密
+│   │   │   └── dlq.py                         # Dead-letter queue 处理 + 回放逻辑
+│   │   ├── security/                          # 安全核心
+│   │   │   ├── auth.py                        # fastapi-users 配置 + JWT rotate + refresh token + 二次认证
+│   │   │   └── ownership.py                   # ownership check（门店/租户级别）
+│   │   ├── events/                            # 领域事件统一管理
+│   │   │   ├── __init__.py
+│   │   │   ├── definitions.py                 # 事件 schema（OrderPlaced, AnomalyDetected 等）
+│   │   │   └── handlers.py                    # 事件消费处理器（可用于回放训练）
+│   │   ├── limiter/                           # 限流
+│   │   │   └── middleware.py                  # fastapi-limiter 初始化 + 全局/门店限流
+│   │   ├── audit/                             # 高风险操作审批（你新增的重点）
+│   │   │   ├── models.py                      # ApprovalRequest（状态机：pending/approved/rejected）
+│   │   │   └── service.py                     # 审批流 + 通知（推送到店长/总部）
+│   │   └── monitoring/                        # 可观测性
+│   │       ├── metrics.py                     # Prometheus 自定义指标（LLM调用、Streams backlog、限流命中）
+│   │       └── logging.py                     # structlog 配置 + Loki exporter
+│   ├── core/                                  # 通用工具类
+│   │   ├── exceptions.py                      # 自定义异常（ApprovalRequired、ToolValidationError 等）
+│   │   ├── middleware.py                      # CORS/CSP/日志/限流中间件
+│   │   └── utils.py                           # Fernet加密、时间工具、门店ID生成等
+│   ├── tools/                                 # ★ 大模型 Tool Calling 统一注册处 ★（你最关心的协作层）
+│   │   ├── __init__.py
+│   │   ├── order.py                           # create_order, update_order, cancel_order
+│   │   ├── inventory.py                       # check_stock, adjust_stock（需审批）
+│   │   ├── table.py                           # check_table_status, alert_long_occupation
+│   │   ├── report.py                          # generate_daily_report, trend_analysis
+│   │   ├── customer.py                        # get_preference, update_tag（隐私加密）
+│   │   └── registry.py                        # 统一导出所有 @tool 函数给 LangGraph
+│   ├── workflows/                             # ★ LangGraph 工作流定义（Tool Calling 主逻辑） ★
+│   │   ├── __init__.py
+│   │   ├── order_intent.py                    # 语音/文本点单工作流（解析 → Tool → 校验 → 下单）
+│   │   ├── anomaly_response.py                # 边缘异常上报 → 决策 → 警报/审批
+│   │   ├── daily_analysis.py                  # 日报/趋势 Agent（多步推理）
+│   │   └── graph_builder.py                   # 公共 Graph 构建 + checkpoint + LangSmith 追踪
+│   ├── realtime_monitoring/                   # 实时监控域（仪表盘、翻台、警报）
+│   │   ├── api/
+│   │   ├── services.py
+│   │   ├── models.py
+│   │   └── schemas.py
+│   ├── order_analysis/                        # 订单与菜品分析
+│   ├── forecasting/                           # 预测与备货（Celery + GPU 预留）
+│   ├── customer_insight/                      # 顾客洞察（独立 schema + Fernet）
+│   ├── identity_notification/                 # 认证 + 推送 + 审批通知
+│   └── integration/                           # 外部集成 + 边缘上报统一入口
+│       ├── api/                               # 边缘上报路由（MQTT/WebSocket/HTTP）
+│       ├── services.py                        # POS/外卖/边缘事件清洗与分发
+│       └── edge_bridge.py                     # 边缘大模型结果结构化 + 入 Streams
+└── tests/                                     # 测试
+    ├── unit/                                  # 按域 mirror
+    ├── integration/                           # Tool Calling + Streams + 审批流 + 边缘模拟
+    └── workflows/                             # LangGraph 端到端测试（mock LLM + tools）
+安全 & 性能强化措施（v2.3）
+RLS 强化
+·  store_id/tenant_id 建索引 + policy + 分区表
+·  高峰期性能监控（pg_stat_statements）
+JWT & Refresh Token
+·  Access token 5–15 分钟，refresh 1–7天
+·  rotate 同步 revoke refresh
+·  可选二次认证
+Celery 安全
+·  worker 限权 Redis 用户（ACL）
+·  payload 脱敏/加密
+·  公网不暴露端口
+WebSocket/SSE
+·  SSE fallback + per-user连接上限
+·  Redis Streams 广播替代全推送
+·  前端聚合，监控连接数和内存
+密钥管理
+·  CI/CD secrets Vault / AWS Secrets Manager / sops-git
+· Docker/K8s secrets volume 替代 .env 明文
+测试覆盖
+·  chaos 测试（Redis/网络异常模拟）
+·  RLS 策略测试（不同门店/用户）
+·  异常事件流测试
+灾备/高可用
+·  PostgreSQL 主从 + pgBouncer
+·  Redis Sentinel/Cluster，多 worker 消费 Streams
+周数
+目标
+Week 1–2
+项目骨架 + uv 初始化 + 安全基线（fastapi-users + limiter + ownership check + JWT rotate/revoke）
+Week 3–4
+核心实时域（realtime_monitoring + order_analysis） + Redis Streams事件流 + 消息加密
+Week 5–6
+异步任务（预测/报表） + customer_insight隐私数据 + 门店汇总指标 + DLQ监控 + chaos 测试
+Week 7
+性能调优（连接池、异步任务）、安全扫描 + 高峰模拟测试（Locust）
+持续
+ADR文档 + CI边界检查 + 每月架构审查

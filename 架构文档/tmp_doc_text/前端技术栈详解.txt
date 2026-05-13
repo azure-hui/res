@@ -1,0 +1,501 @@
+﻿前端技术栈详解
+1.框架/元框架 Next.js 15+ (App Router + React 19)
+创建项目# 使用 create-next-app 官方脚手架（会自动选 React 19 + App Router）npx create-next-app@latest my-next-app# 回答提示时建议选择：✔ Would you like to use TypeScript? … Yes✔ Would you like to use ESLint? … Yes✔ Would you like to use Tailwind CSS? … Yes✔ Would you like to use `src/` directory? … Yes✔ Would you like to use App Router? (recommended) … Yes✔ Would you like to customize the default import alias (@/*)? … Nocd my-next-app升级到最新版本# 升级到最新稳定版（2026 年 3 月通常是 15.x 或 16.x）npm install next@latest react@latest react-dom@latest# 或者用 pnpm / bun（推荐更快）pnpm add next@latest react@latest react-dom@latest# 或bun add next@latest react@latest react-dom@latest安装依赖# UI + 样式npm install tailwindcss-animate class-variance-authority clsx tailwind-merge lucide-react# shadcn/ui（组件库，强烈推荐）npx shadcn-ui@latest init# 数据获取 & 状态管理（推荐组合）npm install @tanstack/react-query zod# 数据库 ORM（Drizzle 轻量、高性能，2026 年主流）npm install drizzle-orm pg drizzle-kit# PostgreSQL 驱动（或用 @neondatabase/serverless / @libsql/client 等）npm install pg# 认证（Lucia 轻量、现代，2026 年流行替代 NextAuth）npm install lucia @lucia-auth/adapter-drizzle# 表单 & 验证（Server Actions 常用）npm install react-hook-form @hookform/resolvers zod# 可选：图标、日期处理等常用工具npm install date-fns sonner创建项目# 使用 create-next-app 官方脚手架（会自动选 React 19 + App Router）npx create-next-app@latest my-next-app# 回答提示时建议选择：✔ Would you like to use TypeScript? … Yes✔ Would you like to use ESLint? … Yes✔ Would you like to use Tailwind CSS? … Yes✔ Would you like to use `src/` directory? … Yes✔ Would you like to use App Router? (recommended) … Yes✔ Would you like to customize the default import alias (@/*)? … Nocd my-next-app升级到最新版本# 升级到最新稳定版（2026 年 3 月通常是 15.x 或 16.x）npm install next@latest react@latest react-dom@latest# 或者用 pnpm / bun（推荐更快）pnpm add next@latest react@latest react-dom@latest# 或bun add next@latest react@latest react-dom@latest安装依赖# UI + 样式npm install tailwindcss-animate class-variance-authority clsx tailwind-merge lucide-react# shadcn/ui（组件库，强烈推荐）npx shadcn-ui@latest init# 数据获取 & 状态管理（推荐组合）npm install @tanstack/react-query zod# 数据库 ORM（Drizzle 轻量、高性能，2026 年主流）npm install drizzle-orm pg drizzle-kit# PostgreSQL 驱动（或用 @neondatabase/serverless / @libsql/client 等）npm install pg# 认证（Lucia 轻量、现代，2026 年流行替代 NextAuth）npm install lucia @lucia-auth/adapter-drizzle# 表单 & 验证（Server Actions 常用）npm install react-hook-form @hookform/resolvers zod# 可选：图标、日期处理等常用工具npm install date-fns sonnerNext.js 15+ (App Router + React 19) 是 2026 年 React 全栈开发的事实标准元框架，尤其在 App Router 模式下。它把 React 19 的所有重大特性（Server Components 稳定、React Compiler、useActionState、useOptimistic、异步支持等）与 Next.js 的路由、数据获取、缓存、渲染策略深度融合，构建出性能极高、SEO 友好、开发体验优秀的现代 Web 应用。
+创建项目
+# 使用 create-next-app 官方脚手架（会自动选 React 19 + App Router）
+npx create-next-app@latest my-next-app
+# 回答提示时建议选择：
+✔ Would you like to use TypeScript? … Yes
+✔ Would you like to use ESLint? … Yes
+✔ Would you like to use Tailwind CSS? … Yes
+✔ Would you like to use `src/` directory? … Yes
+✔ Would you like to use App Router? (recommended) … Yes
+✔ Would you like to customize the default import alias (@/*)? … No
+cd my-next-app
+升级到最新版本
+# 升级到最新稳定版（2026 年 3 月通常是 15.x 或 16.x）
+npm install next@latest react@latest react-dom@latest
+# 或者用 pnpm / bun（推荐更快）
+pnpm add next@latest react@latest react-dom@latest
+# 或
+bun add next@latest react@latest react-dom@latest
+安装依赖
+# UI + 样式
+npm install tailwindcss-animate class-variance-authority clsx tailwind-merge lucide-react
+# shadcn/ui（组件库，强烈推荐）
+npx shadcn-ui@latest init
+# 数据获取 & 状态管理（推荐组合）
+npm install @tanstack/react-query zod
+# 数据库 ORM（Drizzle 轻量、高性能，2026 年主流）
+npm install drizzle-orm pg drizzle-kit
+# PostgreSQL 驱动（或用 @neondatabase/serverless / @libsql/client 等）
+npm install pg
+# 认证（Lucia 轻量、现代，2026 年流行替代 NextAuth）
+npm install lucia @lucia-auth/adapter-drizzle
+# 表单 & 验证（Server Actions 常用）
+npm install react-hook-form @hookform/resolvers zod
+# 可选：图标、日期处理等常用工具
+npm install date-fns sonner
+创建项目
+# 使用 create-next-app 官方脚手架（会自动选 React 19 + App Router）
+npx create-next-app@latest my-next-app
+# 回答提示时建议选择：
+✔ Would you like to use TypeScript? … Yes
+✔ Would you like to use ESLint? … Yes
+✔ Would you like to use Tailwind CSS? … Yes
+✔ Would you like to use `src/` directory? … Yes
+✔ Would you like to use App Router? (recommended) … Yes
+✔ Would you like to customize the default import alias (@/*)? … No
+cd my-next-app
+升级到最新版本
+# 升级到最新稳定版（2026 年 3 月通常是 15.x 或 16.x）
+npm install next@latest react@latest react-dom@latest
+# 或者用 pnpm / bun（推荐更快）
+pnpm add next@latest react@latest react-dom@latest
+# 或
+bun add next@latest react@latest react-dom@latest
+安装依赖
+# UI + 样式
+npm install tailwindcss-animate class-variance-authority clsx tailwind-merge lucide-react
+# shadcn/ui（组件库，强烈推荐）
+npx shadcn-ui@latest init
+# 数据获取 & 状态管理（推荐组合）
+npm install @tanstack/react-query zod
+# 数据库 ORM（Drizzle 轻量、高性能，2026 年主流）
+npm install drizzle-orm pg drizzle-kit
+# PostgreSQL 驱动（或用 @neondatabase/serverless / @libsql/client 等）
+npm install pg
+# 认证（Lucia 轻量、现代，2026 年流行替代 NextAuth）
+npm install lucia @lucia-auth/adapter-drizzle
+# 表单 & 验证（Server Actions 常用）
+npm install react-hook-form @hookform/resolvers zod
+# 可选：图标、日期处理等常用工具
+npm install date-fns sonner
+运行测试# 开发（使用 Turbopack）npm run dev# 构建 & 预览npm run buildnpm run start运行测试# 开发（使用 Turbopack）npm run dev# 构建 & 预览npm run buildnpm run start
+运行测试
+# 开发（使用 Turbopack）
+npm run dev
+# 构建 & 预览
+npm run build
+npm run start
+运行测试
+# 开发（使用 Turbopack）
+npm run dev
+# 构建 & 预览
+npm run build
+npm run start
+2.UI 组件库 Shadcn/ui + Tailwind CSS v4
+前置条件# 如果是旧项目，手动升级到 Tailwind v4npm install tailwindcss@latest postcss@latest autoprefixer@latest2. 初始化 shadcn/ui（推荐方式）# 运行初始化命令（会自动检测 Tailwind v4）npx shadcn@latest init✔ Which style would you like to use? › New York    # 更现代、圆角更大✔ Which color would you like to use as base color? › Slate✔ Would you like to use CSS variables for colors? … yes✔ Where is your global CSS file? … src/app/globals.css✔ Would you like to use CSS variables for all colors? … yes✔ Where is your tailwind.config.js located? … tailwind.config.ts✔ Configure the import alias for components? … @/components✔ Configure the import alias for utils? … @/lib/utils✔ Are you using React Server Components? … yes添加组件# 一次性添加多个常用组件（推荐起步组合）npx shadcn@latest add button card input label table dialog sheet toast alert dialog form dropdown-menu tabs accordion avatar badge calendar checkbox collapsible command context-menu hover-card menubar navigation-menu popover progress radio-group scroll-area select separator skeleton switch tabs textarea toggle tooltip sonner# 或者一个个加npx shadcn@latest add buttonnpx shadcn@latest add cardnpx shadcn@latest add dialognpx shadcn@latest add toast前置条件# 如果是旧项目，手动升级到 Tailwind v4npm install tailwindcss@latest postcss@latest autoprefixer@latest2. 初始化 shadcn/ui（推荐方式）# 运行初始化命令（会自动检测 Tailwind v4）npx shadcn@latest init✔ Which style would you like to use? › New York    # 更现代、圆角更大✔ Which color would you like to use as base color? › Slate✔ Would you like to use CSS variables for colors? … yes✔ Where is your global CSS file? … src/app/globals.css✔ Would you like to use CSS variables for all colors? … yes✔ Where is your tailwind.config.js located? … tailwind.config.ts✔ Configure the import alias for components? … @/components✔ Configure the import alias for utils? … @/lib/utils✔ Are you using React Server Components? … yes添加组件# 一次性添加多个常用组件（推荐起步组合）npx shadcn@latest add button card input label table dialog sheet toast alert dialog form dropdown-menu tabs accordion avatar badge calendar checkbox collapsible command context-menu hover-card menubar navigation-menu popover progress radio-group scroll-area select separator skeleton switch tabs textarea toggle tooltip sonner# 或者一个个加npx shadcn@latest add buttonnpx shadcn@latest add cardnpx shadcn@latest add dialognpx shadcn@latest add toastShadcn/ui + Tailwind CSS v4 是 2026 年 Next.js / React 项目中最受欢迎、最实用的UI 组件 + 样式方案组合，尤其在 App Router + React 19 的全栈应用中，几乎成为“现代 React 前端标配”。
+前置条件
+# 如果是旧项目，手动升级到 Tailwind v4
+npm install tailwindcss@latest postcss@latest autoprefixer@latest
+2. 初始化 shadcn/ui（推荐方式）
+# 运行初始化命令（会自动检测 Tailwind v4）
+npx shadcn@latest init
+✔ Which style would you like to use? › New York    # 更现代、圆角更大
+✔ Which color would you like to use as base color? › Slate
+✔ Would you like to use CSS variables for colors? … yes
+✔ Where is your global CSS file? … src/app/globals.css
+✔ Would you like to use CSS variables for all colors? … yes
+✔ Where is your tailwind.config.js located? … tailwind.config.ts
+✔ Configure the import alias for components? … @/components
+✔ Configure the import alias for utils? … @/lib/utils
+✔ Are you using React Server Components? … yes
+添加组件
+# 一次性添加多个常用组件（推荐起步组合）
+npx shadcn@latest add button card input label table dialog sheet toast alert dialog form dropdown-menu tabs accordion avatar badge calendar checkbox collapsible command context-menu hover-card menubar navigation-menu popover progress radio-group scroll-area select separator skeleton switch tabs textarea toggle tooltip sonner
+# 或者一个个加
+npx shadcn@latest add button
+npx shadcn@latest add card
+npx shadcn@latest add dialog
+npx shadcn@latest add toast
+前置条件
+# 如果是旧项目，手动升级到 Tailwind v4
+npm install tailwindcss@latest postcss@latest autoprefixer@latest
+2. 初始化 shadcn/ui（推荐方式）
+# 运行初始化命令（会自动检测 Tailwind v4）
+npx shadcn@latest init
+✔ Which style would you like to use? › New York    # 更现代、圆角更大
+✔ Which color would you like to use as base color? › Slate
+✔ Would you like to use CSS variables for colors? … yes
+✔ Where is your global CSS file? … src/app/globals.css
+✔ Would you like to use CSS variables for all colors? … yes
+✔ Where is your tailwind.config.js located? … tailwind.config.ts
+✔ Configure the import alias for components? … @/components
+✔ Configure the import alias for utils? … @/lib/utils
+✔ Are you using React Server Components? … yes
+添加组件
+# 一次性添加多个常用组件（推荐起步组合）
+npx shadcn@latest add button card input label table dialog sheet toast alert dialog form dropdown-menu tabs accordion avatar badge calendar checkbox collapsible command context-menu hover-card menubar navigation-menu popover progress radio-group scroll-area select separator skeleton switch tabs textarea toggle tooltip sonner
+# 或者一个个加
+npx shadcn@latest add button
+npx shadcn@latest add card
+npx shadcn@latest add dialog
+npx shadcn@latest add toast
+3.状态管理Zustand v5
+安装npm install zustand# 推荐同时安装 devtools 和 persist 中间件（大多数项目都需要）npm install @zustand/devtools @zustand/middleware# 如果要用 immer（强烈推荐）npm install immer安装npm install zustand# 推荐同时安装 devtools 和 persist 中间件（大多数项目都需要）npm install @zustand/devtools @zustand/middleware# 如果要用 immer（强烈推荐）npm install immerZustand v5 是 2026 年 React / Next.js 项目中最受欢迎的轻量级、可扩展状态管理库之一，尤其在 Next.js 15+ App Router + React 19 的生态中，被大量团队选为默认状态管理方案（取代 Redux、Recoil、MobX 在很多场景中的地位）。
+安装
+npm install zustand
+# 推荐同时安装 devtools 和 persist 中间件（大多数项目都需要）
+npm install @zustand/devtools @zustand/middleware
+# 如果要用 immer（强烈推荐）
+npm install immer
+安装
+npm install zustand
+# 推荐同时安装 devtools 和 persist 中间件（大多数项目都需要）
+npm install @zustand/devtools @zustand/middleware
+# 如果要用 immer（强烈推荐）
+npm install immer
+4.数据获取/缓存 TanStack Query v5+
+TanStack Query v5+（以前叫 React Query）是 2026 年 React / Next.js 生态中最主流、最强大的数据获取、缓存、同步、状态管理工具，尤其在 Next.js 15+ App Router + React 19 的全栈应用中，几乎是默认数据层选择。
+它把“从服务器获取数据 → 缓存 → 自动重新获取 → 乐观更新 → 错误处理 → 加载状态”这些常见痛点全部解决得非常优雅，比传统的 useEffect + fetch + useState 高效 10 倍以上，也比 Zustand / Redux 在“服务器状态”管理上更专业。
+安装npm install @tanstack/react-query# 强烈推荐安装 devtools（开发神器）npm install @tanstack/react-query-devtools安装npm install @tanstack/react-query# 强烈推荐安装 devtools（开发神器）npm install @tanstack/react-query-devtools一句话定位： TanStack Query v5+ 是 2026 年 Next.js 项目中处理任何远程数据（API、数据库查询、GraphQL、WebSocket 等）的 de facto 标准 —— 缓存智能、后台更新、乐观 UI、自动重试、Suspense 集成、Devtools 强大，几乎所有中大型项目都在用它。
+安装
+npm install @tanstack/react-query
+# 强烈推荐安装 devtools（开发神器）
+npm install @tanstack/react-query-devtools
+安装
+npm install @tanstack/react-query
+# 强烈推荐安装 devtools（开发神器）
+npm install @tanstack/react-query-devtools
+5.实时通信 Socket.IO v5 (WebSocket + SSE fallback)
+Socket.IO v5（2025 年底 – 2026 年主流版本）是目前在 Next.js 15+/16+ + React 19 项目中仍然最受欢迎的实时双向通信解决方案之一，尤其适合需要WebSocket + SSE 回退 + 房间 + 广播 + 自动重连 + 心跳等功能的场景。
+安装npm install socket.io socket.io-client# TypeScript 支持（强烈推荐）npm install --save-dev @types/socket.io @types/socket.io-client安装npm install socket.io socket.io-client# TypeScript 支持（强烈推荐）npm install --save-dev @types/socket.io @types/socket.io-client
+安装
+npm install socket.io socket.io-client
+# TypeScript 支持（强烈推荐）
+npm install --save-dev @types/socket.io @types/socket.io-client
+安装
+npm install socket.io socket.io-client
+# TypeScript 支持（强烈推荐）
+npm install --save-dev @types/socket.io @types/socket.io-client
+6.图表/可视化 Recharts v3+ 或 Nivo
+维度
+Recharts v3+
+Nivo (@nivo/*)
+胜出方（2026 主流）
+npm 下载量
+极高（每周 300–500 万）
+中高（每周 80–150 万）
+Recharts
+组件丰富度
+经典图表齐全（Line, Bar, Area, Pie, Radar, Scatter, Treemap, Funnel 等）
+更丰富（+ Chord, Bump, Bullet, Calendar, Circle Packing, HeatMap, Marimekko, Parallel Coordinates, Radar, Stream, Voronoi, Waffle 等）
+Nivo
+动画 & 交互
+基础动画，交互较简单
+动画极致流畅（framer-motion 驱动），交互更现代（zoom、brush、tooltip 自定义）
+Nivo
+可定制性
+高（完全可覆盖样式），但需要写更多 CSS
+极高（主题系统 + layer 系统 + 自定义 SVG 层）
+Nivo
+响应式 & 自适应
+一般（需手动处理 width/height）
+原生支持 responsive wrapper + auto-sizing
+Nivo
+暗色模式支持
+需手动切换主题
+内置 dark/light 主题切换（通过 nivo 主题 provider）
+Nivo
+包体积
+单组件按需引入 ~10–50 KB
+按需引入类似，但整体家族更大
+平手
+TypeScript 支持
+优秀（v3 后大幅改进）
+极佳（类型定义非常完整）
+Nivo
+学习曲线
+低（API 简单，像 echarts）
+中等（概念稍多，但文档极好）
+Recharts
+社区 & 维护
+非常大，但 v3 后维护放缓
+活跃，作者持续投入，新组件/修复频繁
+平手（Recharts 体量大，Nivo 更活跃）
+Next.js App Router 兼容
+优秀（纯 Client Component）
+优秀（支持 Server/Client）
+平手
+典型使用场景
+快速搭建、经典图表、团队熟悉度高
+需要高级交互、动画、独特图表类型、现代感强
+依需求
+项目类型 / 需求
+首选推荐
+理由简述
+快速开发、经典图表（折线/柱状/饼图）
+Recharts v3+
+API 最简单、学习成本最低、生态最大、维护足够稳定
+需要高级交互、动画、独特图表类型
+Nivo
+动画/交互体验碾压、组件更现代、主题系统强大
+Dashboard / SaaS / 分析工具
+Nivo（或两者混用）
+Nivo 的响应式 + 暗色 + 高级图表更符合 2026 年审美与交互趋势
+团队已有 Recharts 经验
+Recharts
+迁移成本高，继续用 v3 即可（v3 已修复大部分 v2 痛点）
+极致包体积 / 极简需求
+Recharts
+单个图表按需引入更轻
+暗色模式 + 主题切换频繁
+Nivo
+内置主题切换，几乎零成本
+安装（Recharts v3+）npm install rechartsNivonpm install @nivo/core @nivo/line @nivo/bar @nivo/pie # 按需安装需要的图表包# 推荐一次性安装核心 + 常用图表npm install @nivo/core @nivo/line @nivo/bar @nivo/pie @nivo/heatmap @nivo/radar安装（Recharts v3+）npm install rechartsNivonpm install @nivo/core @nivo/line @nivo/bar @nivo/pie # 按需安装需要的图表包# 推荐一次性安装核心 + 常用图表npm install @nivo/core @nivo/line @nivo/bar @nivo/pie @nivo/heatmap @nivo/radar
+安装（Recharts v3+）
+npm install recharts
+Nivo
+npm install @nivo/core @nivo/line @nivo/bar @nivo/pie # 按需安装需要的图表包
+# 推荐一次性安装核心 + 常用图表
+npm install @nivo/core @nivo/line @nivo/bar @nivo/pie @nivo/heatmap @nivo/radar
+安装（Recharts v3+）
+npm install recharts
+Nivo
+npm install @nivo/core @nivo/line @nivo/bar @nivo/pie # 按需安装需要的图表包
+# 推荐一次性安装核心 + 常用图表
+npm install @nivo/core @nivo/line @nivo/bar @nivo/pie @nivo/heatmap @nivo/radar
+7.表单/交互 React Hook Form v8 + Zod v3
+React Hook Form v8 + Zod v3 是 2026 年 Next.js / React 项目中最主流、最推荐的表单处理 + 验证组合，尤其在 App Router + React 19 + Server Actions 的全栈场景中，几乎是事实标准。
+这个组合把表单管理的三大痛点（性能、验证、错误处理）解决得非常优雅：
+React Hook Form：极致性能（非受控组件 + 最小重新渲染）、简单 API、与 UI 库（shadcn/ui、MUI 等）无缝集成
+Zod：类型安全的模式定义、运行时 + 编译时验证、错误消息自定义、Server/Client 双端复用
+安装依赖npm install react-hook-form zod @hookform/resolvers# 如果用 shadcn/ui（强烈推荐）# 已安装 shadcn/ui 的组件即可直接用安装依赖npm install react-hook-form zod @hookform/resolvers# 如果用 shadcn/ui（强烈推荐）# 已安装 shadcn/ui 的组件即可直接用一句话定位： React Hook Form v8 + Zod v3 是 2026 年现代 React 表单的黄金搭档 —— 高性能、类型安全、Server Actions 友好、与 shadcn/ui 完美适配，几乎所有中大型项目（SaaS、dashboard、电商结账、AI 提示输入等）都在用这个组合。
+安装依赖
+npm install react-hook-form zod @hookform/resolvers
+# 如果用 shadcn/ui（强烈推荐）
+# 已安装 shadcn/ui 的组件即可直接用
+安装依赖
+npm install react-hook-form zod @hookform/resolvers
+# 如果用 shadcn/ui（强烈推荐）
+# 已安装 shadcn/ui 的组件即可直接用
+8.语音/多模态 Web Speech API + Whisper.js (浏览器/边缘）
+语音/多模态：Web Speech API + Whisper.js（浏览器/边缘） 是 2026 年在浏览器端实现实时语音识别 + 语音合成 + 边缘多模态交互 的最轻量、最原生、最隐私友好的组合方案。
+它完全依赖浏览器内置能力 + 轻量 WebAssembly / WebNN 加速，几乎不依赖后端服务器，特别适合：
+浏览器内语音输入（搜索、聊天、表单口述）
+实时字幕 / 会议转录（离线或边缘）
+语音助手 / 多模态前端（语音 + 文本 + 图像）
+隐私敏感场景（医疗、教育、个人工具）
+项目
+Web Speech API
+Whisper.js (transformers.js)
+推荐场景（2026）
+实时性
+极好（流式，延迟 < 300ms）
+中等（tiny 模型 ≈ 500–1500ms，medium 更慢）
+Web Speech 胜（实时对话）
+准确率
+中等（依赖云端模型，中文/日语一般）
+高（Whisper 训练数据多，噪声鲁棒性强）
+Whisper 胜（复杂场景、口音）
+离线能力
+部分（Chrome Android 支持离线）
+完全离线（模型下载后）
+Whisper 胜
+隐私
+云端处理（数据上传 Google/Apple）
+本地运行（零上传）
+Whisper 胜（隐私敏感）
+语言支持
+有限（Chrome ≈ 120 种，但质量参差）
+极强（Whisper 支持 99 种语言）
+Whisper 胜
+浏览器兼容
+Chrome/Edge 优秀，Safari/Firefox 弱
+几乎全浏览器（WebAssembly）
+平手
+模型大小
+无需下载
+tiny ≈ 75MB，base ≈ 150MB，small ≈ 500MB
+Web Speech 胜（首次加载快）
+功耗 / 性能
+低（云端计算）
+中高（CPU/GPU/WebNN）
+Web Speech 胜（移动端）
+2026 主流用法
+快速语音输入、简单交互
+高精度转录、离线、多语言、隐私场景
+两者结合最常见
+场景
+首选方案
+备选 / 混合方式
+实时语音输入（搜索框、聊天）
+Web Speech API
+—
+高精度、离线、多语言转录
+Whisper.js (tiny/base)
+—
+隐私敏感 + 离线优先
+Whisper.js
+—
+混合需求（先用 Web Speech，失败 fallback Whisper）
+Web Speech API + Whisper.js fallback
+—
+语音 + 多模态（语音 + 图像描述）
+Whisper.js + transformers.js 多模态模型
+—
+认证/安全 axios v1+ + JWT 拦截器
+安装npm install axios# TypeScript 类型（强烈推荐）npm install --save-dev @types/axios安装npm install axios# TypeScript 类型（强烈推荐）npm install --save-dev @types/axiosaxios v1+ + JWT 拦截器 是 2026 年 Next.js / React 项目中最经典、最可靠的客户端 HTTP 请求 + 认证方案，尤其在 App Router + Server Actions 之外仍需要调用第三方 API、内部 RESTful 接口、带 token 的场景中，几乎是标配。
+安装
+npm install axios
+# TypeScript 类型（强烈推荐）
+npm install --save-dev @types/axios
+安装
+npm install axios
+# TypeScript 类型（强烈推荐）
+npm install --save-dev @types/axios
+生产级最佳实践（2026 年）
+token 存储：优先 httpOnly cookie（防 XSS），localStorage 做 fallback
+刷新 token：使用 silent refresh（iframe / polling）或 refresh token 轮换
+401 统一处理：拦截器中跳转登录 + 清 token
+取消请求：使用 AbortController + api 取消
+错误处理：全局 toast / sentry 捕获
+环境变量：NEXT_PUBLIC_API_URL 只放公开域名，敏感用 process.env
+Vercel 边缘：axios 在边缘函数中可用，但建议 Server Actions 处理内部请求
+打包/部署 Vercel 或 Netlify
+Vercel 和 Netlify 是 2026 年 Next.js 项目最主流的打包 + 部署平台，尤其在 Next.js 15+/16+（App Router + React 19）生态中，Vercel 几乎是官方默认选择，Netlify 则是强有力的备选（尤其在静态导出、多站点、CMS 集成场景）。
+维度
+Vercel（推荐首选）
+Netlify
+胜出方（你的栈）
+Next.js 原生支持
+极致（Vercel 就是 Next.js 母公司）
+优秀（支持所有功能，但部分实验特性慢一步）
+Vercel
+Server Components / App Router
+完美支持（PPR、Streaming、Server Actions）
+支持良好（2026 年已完全兼容）
+Vercel
+边缘函数 / Middleware
+原生边缘网络（全球 30+ PoP）
+边缘函数支持，但延迟稍高
+Vercel
+自动部署
+git push 自动构建 & 预览分支
+同等优秀
+平手
+免费额度
+Hobby 免费（100 GB 带宽/月，足够个人/小型项目）
+Starter 免费（100 GB 带宽/月）
+平手
+Serverless 函数时长
+60s（Hobby）/ 300s（Pro）
+10s（免费）/ 15min（付费）
+Netlify（长任务）
+自定义域名 / SSL
+免费自动
+免费自动
+平手
+预览部署
+每个 PR 一条预览 URL
+同等优秀
+平手
+Socket.IO / WebSocket
+支持（但推荐独立服务器或 Upstash/Ably）
+支持（但免费层连接时长限制）
+Vercel（边缘）
+环境变量
+非常方便（支持分支环境变量）
+优秀
+平手
+2026 年主流选择
+Next.js 项目 80%+ 首选
+静态站、Jamstack、Hugo / Astro 项目更常见
+Vercel（你的栈）
+项目准备npm run build检查 .gitignore 中不包含 .env.local（环境变量不要提交）创建 .env（生产环境变量示例）：env# .env (Vercel 会读取这个文件或手动添加)NEXT_PUBLIC_API_URL=https://api.yourdomain.comNEXT_PUBLIC_SOCKET_URL=wss://socket.yourdomain.comDATABASE_URL=postgres://...项目准备npm run build检查 .gitignore 中不包含 .env.local（环境变量不要提交）创建 .env（生产环境变量示例）：env# .env (Vercel 会读取这个文件或手动添加)NEXT_PUBLIC_API_URL=https://api.yourdomain.comNEXT_PUBLIC_SOCKET_URL=wss://socket.yourdomain.comDATABASE_URL=postgres://...
+项目准备
+npm run build
+检查 .gitignore 中不包含 .env.local（环境变量不要提交）
+创建 .env（生产环境变量示例）：
+env
+# .env (Vercel 会读取这个文件或手动添加)
+NEXT_PUBLIC_API_URL=https://api.yourdomain.com
+NEXT_PUBLIC_SOCKET_URL=wss://socket.yourdomain.com
+DATABASE_URL=postgres://...
+项目准备
+npm run build
+检查 .gitignore 中不包含 .env.local（环境变量不要提交）
+创建 .env（生产环境变量示例）：
+env
+# .env (Vercel 会读取这个文件或手动添加)
+NEXT_PUBLIC_API_URL=https://api.yourdomain.com
+NEXT_PUBLIC_SOCKET_URL=wss://socket.yourdomain.com
+DATABASE_URL=postgres://...
+类型安全 TypeScript v5+ + orval
+类型安全：TypeScript v5+ + orval 是 2026 年 Next.js / React 项目中最主流、最推荐的端到端类型安全方案，尤其在前后端分离、RESTful API 驱动的现代全栈应用中，几乎已成为事实标准。
+这个组合的核心目标是：
+前端 100% 类型安全：从后端 OpenAPI / Swagger 自动生成类型、请求函数、hooks（React Query / TanStack Query 风格）
+零手动维护：后端接口改动 → 自动同步前端类型 & API 客户端
+开发体验爆炸：补全、类型检查、错误早发现、零运行时开销
+npm install orval --save-dev# 如果用 TanStack Query（强烈推荐）npm install @tanstack/react-query# 如果需要 zod（表单验证复用）npm install zodnpm install orval --save-dev# 如果用 TanStack Query（强烈推荐）npm install @tanstack/react-query# 如果需要 zod（表单验证复用）npm install zod一句话定位： TypeScript v5+ + orval 是 2026 年 TypeScript 项目中实现“前后端类型共享、零维护 API 客户端”的黄金组合 —— 后端改接口，前端自动更新类型和请求函数，几乎消灭了“接口文档落后”“字段拼写错”“手动写类型”这些痛点。
+npm install orval --save-dev
+# 如果用 TanStack Query（强烈推荐）
+npm install @tanstack/react-query
+# 如果需要 zod（表单验证复用）
+npm install zod
+npm install orval --save-dev
+# 如果用 TanStack Query（强烈推荐）
+npm install @tanstack/react-query
+# 如果需要 zod（表单验证复用）
+npm install zod
+12测试 Vitest + React Testing Library + MSW
+Vitest + React Testing Library + MSW 是 2026 年 Next.js / React 项目中最主流、最推荐的单元测试 + 组件测试 + API mock组合，尤其适合 App Router + React 19 + TypeScript 项目。
+这个组合几乎是目前事实标准，原因如下：
+Vitest：Vite 原生测试运行器，速度极快（比 Jest 快 3–10x）、支持 ESM、TypeScript、JSX、tsx、mock 等，配置几乎为零
+React Testing Library (RTL)：官方推荐的 React 组件测试库，鼓励“像用户一样测试”，避免测试实现细节
+MSW (Mock Service Worker)：浏览器/Node 双端拦截请求，完美模拟 API 返回，适合测试数据获取、表单提交、错误处理等
+安装# 开发依赖npm install -D vitest @vitejs/plugin-react jsdom @testing-library/react @testing-library/jest-dom @testing-library/user-event msw# 如果用 TypeScript（推荐）npm install -D @types/testing-library__jest-dom安装# 开发依赖npm install -D vitest @vitejs/plugin-react jsdom @testing-library/react @testing-library/jest-dom @testing-library/user-event msw# 如果用 TypeScript（推荐）npm install -D @types/testing-library__jest-dom
+安装
+# 开发依赖
+npm install -D vitest @vitejs/plugin-react jsdom @testing-library/react @testing-library/jest-dom @testing-library/user-event msw
+# 如果用 TypeScript（推荐）
+npm install -D @types/testing-library__jest-dom
+安装
+# 开发依赖
+npm install -D vitest @vitejs/plugin-react jsdom @testing-library/react @testing-library/jest-dom @testing-library/user-event msw
+# 如果用 TypeScript（推荐）
+npm install -D @types/testing-library__jest-dom
+13.PWA/离线Next.js PWA 配置 + Workbox
+以下是 2026 年 在 Next.js 项目（特别是 Next.js 15+ / 16+ App Router + React 19）中实现高质量 PWA（渐进式 Web 应用） + 离线支持 的最主流、最推荐的配置方案。
+目前最推荐的组合是：
+next-pwa（插件方式，简单快速，但 2025 年后维护放缓）
+Workbox（Webpack / Vite 插件）+ 手动配置（更灵活、更可控，社区 2026 年主流做法）
+Vite PWA 插件（如果用 Vite 模式开发 Next.js，也可考虑）
+由于你的技术栈是标准的 Next.js App Router，下面优先给出 最推荐的两种方案：
+next-pwa（最简单，适合快速上手）
+Workbox + 手动配置（更灵活、生产级推荐，2026 年主流）
+安装npm install next-pwa测试npm run buildnpm run start安装 Workboxnpm install workbox-webpack-plugin workbox-window workbox-precaching workbox-routing workbox-strategies workbox-expiration workbox-cacheable-responsenpm run buildnpm run start安装npm install next-pwa测试npm run buildnpm run start安装 Workboxnpm install workbox-webpack-plugin workbox-window workbox-precaching workbox-routing workbox-strategies workbox-expiration workbox-cacheable-responsenpm run buildnpm run start
+安装
+npm install next-pwa
+测试
+npm run build
+npm run start
+安装 Workbox
+npm install workbox-webpack-plugin workbox-window workbox-precaching workbox-routing workbox-strategies workbox-expiration workbox-cacheable-response
+npm run build
+npm run start
+安装
+npm install next-pwa
+测试
+npm run build
+npm run start
+安装 Workbox
+npm install workbox-webpack-plugin workbox-window workbox-precaching workbox-routing workbox-strategies workbox-expiration workbox-cacheable-response
+npm run build
+npm run start
+需求类型
+推荐方案
+理由简述
+快速实现、简单 PWA
+next-pwa
+配置最少，几分钟搞定，适合中小型项目
+生产级、可高度自定义缓存
+Workbox 手动配置
+缓存策略最灵活，支持复杂场景、离线页面、后台同步
+需要极致边缘性能
+Vercel + Workbox
+Vercel 边缘缓存 + Workbox 组合，延迟最低
+纯静态导出（SSG）
+next export + Workbox
+静态文件全缓存，离线体验最佳

@@ -1,0 +1,401 @@
+﻿收集 & 提炼需求
+功能需求（Functional Requirements）收集
+1.数据采集模块(这个模块负责从POS、摄像头、库存系统等来源实时采集数据，支持手动输入和API集成。)
+用户故事
+角色
+优先级
+As a 店长, I want to integrate POS system data automatically, so that orders and payments are captured in real-time without manual entry.
+店长
+高
+As a 厨师长, I want to scan or input inventory levels via mobile app, so that stock data is updated instantly to avoid discrepancies.
+厨师长
+高
+As a 服务员, I want the system to capture customer entry via QR code or camera, so that guest flow is tracked without extra effort.
+服务员
+高
+As a 店长, I want to connect external APIs (e.g., supplier systems) for automated data import, so that ingredient costs are always current.
+店长
+中
+As a 总部经理, I want multi-store data aggregation from all branches, so that centralized data collection is seamless.
+总部经理
+中
+边缘：外卖订单接入 As a 店长, I want to integrate third-party delivery platforms (e.g., Meituan, Uber Eats), so that takeaway orders are included in overall analytics.
+店长
+中
+2. 客流监控模块(使用摄像头或传感器监控进出客流、翻台率等，支持高峰预警。)
+用户故事
+角色
+优先级
+As a 店长, I want real-time guest flow tracking via cameras, so that I can monitor occupancy and predict bottlenecks.
+店长
+高
+As a 服务员, I want table status updates (occupied/free) automatically, so that I can assign seats quickly.
+服务员
+高
+As a 餐厅老板, I want daily/weekly foot traffic reports, so that I can identify peak hours and adjust staffing.
+餐厅老板
+高
+As a 店长, I want alerts for high occupancy (e.g., >80%), so that I can prepare for rushes.
+店长
+高
+边缘：历史数据查询 As a 餐厅老板, I want to query historical foot traffic by date range, so that I can analyze seasonal trends.
+餐厅老板
+中
+3. 订单分析模块(分析订单数据，包括营收、客单价、支付分布等。)
+用户故事
+角色
+优先级
+用户故事角色优先级As a 餐厅老板, I want to view daily revenue breakdowns by order type (dine-in/takeout), so that I can track profitability.
+餐厅老板
+高
+As a 店长, I want order trend analysis (e.g., average order value changes), so that I can spot sales patterns.
+店长
+高
+As a 厨师长, I want dish-level sales reports, so that I can identify top-selling items for menu optimization.
+厨师长
+高
+As a 服务员, I want quick access to order history for a table, so that I can upsell based on current orders.
+服务员
+中
+边缘：外卖订单接入 As a 店长, I want takeaway orders analyzed separately from dine-in, so that I can compare performance across channels.
+店长
+中
+边缘：导出报表 As a 餐厅老板, I want to export order analysis reports as PDF/CSV, so that I can share with investors.
+餐厅老板
+中
+4. 常客识别模块(匿名或实名追踪复购顾客，支持隐私合规。)
+用户故事
+角色
+优先级
+As a 服务员, I want automatic detection of repeat customers via QR or app, so that I can greet them personally.
+服务员
+高
+As a 店长, I want a list of top repeat customers (anonymized), so that I can target loyalty programs.
+店长
+高
+As a 餐厅老板, I want repeat rate calculations, so that I can measure customer retention.
+餐厅老板
+高
+As a 总部经理, I want cross-store repeat customer tracking, so that I can identify chain-wide loyalists.总部经理中边缘：历
+总部经理
+中
+边缘：历史数据查询 As a 店长, I want to query a customer's visit history (with consent), so that I can investigate churn reasons.
+店长
+低
+5. 口味偏好分析模块(基于订单历史构建顾客偏好模型，支持推荐。)
+用户故事
+角色
+优先级
+As a 服务员, I want pop-up suggestions for customer preferences (e.g., "prefers spicy"), so that I can recommend dishes accurately.
+服务员
+高
+As a 厨师长, I want aggregated preference trends (e.g., % preferring vegetarian), so that I can adjust recipes.
+厨师长
+高
+As a 店长, I want preference-based menu recommendations, so that I can reduce order errors.
+店长
+高
+As a 餐厅老板, I want reports on preference shifts over time, so that I can update the menu seasonally.
+餐厅老板
+中
+边缘：多店总部视图 As a 总部经理, I want chain-wide preference dashboards, so that I can standardize menus across stores.
+总部经理
+中
+6. 预测洞察模块(使用ML预测销量、客流、库存等。)
+用户故事
+角色
+优先级
+As a 厨师长, I want daily dish sales forecasts, so that I can prepare ingredients precisely.
+厨师长
+高
+As a 店长, I want guest flow predictions for the next hour/day, so that I can schedule staff efficiently.
+店长
+高
+As a 餐厅老板, I want revenue forecasts based on trends, so that I can plan budgets.
+餐厅老板
+高
+As a 总部经理, I want store-level performance predictions, so that I can allocate resources.
+总部经理
+中
+边缘：历史数据查询 As a 店长, I want to compare past predictions vs actuals, so that I can refine model accuracy.
+店长
+低
+7. 警报通知模块(实时触发警报，如库存低、异常事件等，支持推送。)
+用户故事
+角色
+优先级
+As a 店长, I want low-stock alerts via app notification, so that I can reorder immediately.
+店长
+高
+As a 服务员, I want anomaly alerts (e.g., long-occupied table), so that I can intervene promptly.
+服务员
+高
+As a 厨师长, I want over-preparation warnings based on predictions, so that I can minimize waste.
+厨师长
+高
+As a 餐厅老板, I want critical alerts (e.g., revenue drop), emailed daily, so that I can act on risks.
+餐厅老板
+中
+边缘：异常事件处理 As a 店长, I want to mark alerts as resolved and log actions, so that I can track response times.
+店长
+中
+8. 仪表板报告模块(可视化数据，支持自定义视图。)
+用户故事
+角色
+优先级
+As a 餐厅老板, I want a customizable dashboard showing KPIs (e.g., revenue, margins), so that I can monitor health at a glance.
+餐厅老板
+高
+As a 店长, I want real-time charts for operations (e.g., flip rate), so that I can make on-the-spot decisions.
+店长
+高
+As a 总部经理, I want comparative dashboards across stores, so that I can benchmark performance.
+总部经理
+高
+As a 厨师长, I want inventory trend reports, so that I can spot usage patterns.
+厨师长
+中
+边缘：多店总部视图 As a 总部经理, I want ranked store views (e.g., top/bottom by revenue), so that I can identify underperformers.
+总部经理
+中
+边缘：导出报表 As a 餐厅老板, I want one-click report exports in multiple formats, so that I can use them in meetings.
+餐厅老板
+中
+边缘：历史数据查询 As a 店长, I want advanced filters for reports (e.g., by time, dish), so that I can drill down into data.
+店长
+中
+9.补充边缘场景用户故事(这些覆盖了未在核心模块中详述的边缘功能，如系统配置、合规等。)
+用户故事
+角色
+优先级
+外卖订单接入 As a 店长, I want to filter analytics by order channel (dine-in vs takeaway), so that I can optimize for delivery trends.
+店长
+中
+多店总部视图 As a 总部经理, I want role-based access controls for chain views, so that branch managers see only their data.
+总部经理
+中
+历史数据查询 As a 餐厅老板, I want secure data archives for up to 2 years, so that I can comply with audits.
+餐厅老板
+低
+导出报表 As a 总部经理, I want scheduled auto-exports (e.g., weekly emails), so that reports are distributed hands-free.
+总部经理
+中
+其他边缘：系统配置 As a 店长, I want to customize alert thresholds (e.g., stock <20%), so that notifications fit my store's needs.
+店长
+中
+其他边缘：隐私合规 As a 餐厅老板, I want customer data consent toggles, so that I comply with laws like PIPL.
+餐厅老板
+高
+其他边缘：异常事件 As a 服务员, I want video snippet links in anomaly alerts, so that I can verify issues quickly.
+服务员
+低
+非功能需求（Non-Functional Requirements / Quality Attributes）重点收集
+性能（Performance） - 优先级最高
+需求项
+量化指标
+理由
+实现建议
+验收标准
+系统吞吐量
+高峰期支持单店每分钟处理 ≥50笔订单（含点单、支付、库存扣减、预警触发）
+避免爆单/漏单，保障高峰期不出错
+使用云原生架构（容器+K8s自动扩缩容），异步处理（如消息队列Kafka/RabbitMQ）
+压力测试（JMeter/Locust）模拟高峰，99%请求 < 2秒响应
+仪表板刷新延迟
+实时仪表盘（营收、客流、翻台率）刷新延迟 < 5秒
+店长/老板需即时感知经营状态
+WebSocket推送 + Redis缓存热点数据
+端到端测试，平均延迟 < 3秒，P95 < 5秒
+Api响应时间
+95%请求 < 800ms，99% < 2秒
+服务员点单、厨师查看预测不能卡顿
+CDN加速静态资源，数据库索引+读写分离
+Load测试下P99 < 2秒
+预测计算延迟
+销量/客流预测刷新 < 30秒
+峰值预警需提前30分钟
+定时任务 + 轻量ML模型（ARIMA/Prophet）在边缘或云端
+后台Job监控，延迟超标报警
+2. 可用性（Availability） - 优先级极高
+需求项
+量化指标
+理由
+实现建议
+验收标准
+系统Uptime
+≥99.9%（年不可用时间 < 8.76小时）
+99.5%已不够，高峰期1小时宕机损失上万
+多AZ/多地域部署，自动故障转移，SLA承诺
+监控工具（Prometheus+Grafana）统计，SLA赔付机制
+离线/弱网模式
+支持断网下本地缓存订单，网络恢复后自动同步
+餐厅WiFi不稳常见
+PWA + IndexedDB本地存储 + 同步队列
+测试断网场景，订单不丢失，同步成功率100%
+恢复时间（RTO）
+故障恢复 < 5分钟
+快速恢复业务
+蓝绿部署 + 自动回滚
+模拟故障演练，平均RTO < 3分钟
+可扩展性（Scalability） - 优先级高
+需求项
+量化指标
+理由
+实现建议
+验收标准
+门店规模支持
+单实例支持 ≥500家门店（未来目标1000+）
+连锁场景快速复制
+多租户架构（数据库隔离/共享），水平扩展
+模拟100店负载，资源利用率均衡
+单店日订单峰值
+支持单店日订单 ≥5000笔（含外卖高峰）
+火锅/烧烤周末高峰可达此量
+自动弹性伸缩（K8s HPA），数据库分片/读写分离
+扩容测试，新增节点 < 2分钟生效
+数据增长
+支持3年历史数据无性能衰退
+趋势分析需长周期数据
+时序数据库（InfluxDB）+冷热分离
+查询1年数据 < 5秒
+4. 安全性 & 合规（Security & Compliance） - 优先级极高
+需求项
+量化指标
+理由
+实现建议
+验收标准
+数据加密
+传输（HTTPS/TLS 1.3）、静态（AES-256）
+符合《个人信息保护法》
+全链路加密，云KMS管理密钥
+渗透测试无明文泄露
+访问控制
+RBAC + 最小权限原则
+老板/店长/服务员权限分明
+JWT + 角色绑定，细粒度API权限
+越权测试全部拦截
+审计日志
+所有敏感操作（查看顾客数据、修改库存）记录 ≥1年
+合规审计、追责
+ELK栈或云日志服务
+日志完整、可追溯
+隐私合规
+顾客ID匿名化（哈希/脱敏），支持数据删除权
+PIPL/PDPA要求
+同意弹窗 + 数据主体权利接口
+合规自查报告通过
+DDoS防护
+支持 ≥10Gbps攻击防护
+防止恶意刷单/攻击
+云WAF + 高防IP
+模拟攻击，系统稳定
+5.可观测性（Observability） - 优先级高
+需求项
+量化指标
+理由
+实现建议
+验收标准
+监控覆盖
+业务指标（订单成功率、预测准确率）、基础设施全覆盖
+提前发现瓶颈
+Prometheus + Grafana + Alertmanager
+自定义Dashboard，异常自动告警
+慢查询/错误追踪
+慢SQL/异常捕获 < 1秒定位
+开发/运维效率
+APM工具（Jaeger/SkyWalking）+日志链路追踪
+问题复现 < 5分钟
+告警响应
+关键指标异常告警 < 1分钟送达
+减少损失
+企业微信/短信多渠道
+测试告警覆盖率100%
+可维护性（Maintainability） - 优先级中高
+需求项
+量化指标
+理由
+实现建议
+验收标准
+新功能上线周期
+MVP迭代 < 2周，常规功能 < 1周
+快速响应业务反馈
+CI/CD管道（GitHub Actions/Jenkins），蓝绿/金丝雀发布
+发布成功率 >99%
+代码可读性
+单元测试覆盖率 ≥80%，代码规范（SonarQube）
+便于团队协作
+Clean Code + Lint工具
+Code Review通过率 >95%
+7. 成本（Cost） - 优先级高（中小餐厅最敏感）
+需求项
+量化指标
+理由
+实现建议
+验收标准
+云费用
+单店每月云成本 ≤200-500元（基础版），连锁 ≤100元/店
+订阅费已敏感，云费不能过高
+Serverless（Lambda/FaaS）+ 按需付费，预留实例折扣
+季度账单审计，超出预警
+TCO优化
+比自建IDC节省 ≥50%
+避免硬件/运维投入
+自动关停闲置资源，成本监控Dashboard
+对比报告显示节省比例
+8. 易用性（Usability） - 优先级高
+需求项
+量化指标
+理由
+实现建议
+验收标准
+培训时间
+新店员上手 < 1小时
+不增加负担
+移动端优先（App/小程序），直观UI + 引导教程
+用户测试，完成核心任务 < 30分钟
+设备支持
+iOS/Android + 微信小程序
+利用现有手机/POS
+响应式设计 + PWA
+多设备兼容测试
+9. 部署 & 运维（Deployment & Operations） - 优先级中
+需求项
+量化指标
+理由
+实现建议
+验收标准
+部署方式
+一键部署 < 30分钟
+快速上线
+Helm Chart + Terraform IaC
+新店部署录屏演示
+自动备份
+每日全量 + 增量，保留 ≥30天
+数据安全
+云备份服务 + 跨地域复制
+恢复测试成功率100%
+版本回滚
+支持一键回滚到上一稳定版
+故障快速恢复
+GitOps + ArgoCD
+回滚演练 < 10分钟
+餐厅自动监控与分析系统 - 轻量级需求规格说明书（SRS v1.0）
+版本：1.0
+日期：2026年3月4日
+适用范围：中小型餐饮实体门店（火锅/烧烤/快餐等高频场景）SaaS产品，MVP + 短期迭代规划
+目标读者：产品经理、开发团队、测试、投资人/餐厅老板代表
+引言
+1.1项目概述
+1.2范围
+1.3定义与缩写
+功能需求(Functional Requirements)
+2.1数据采集模块
+2.2客流监控模块
+2.3订单分析模块
+2.4常客识别与口味偏好分析模块
+2.5预测洞察模块
+2.6警报通知模块
+2.7仪表盘与报告模块
+非功能需求
+需求优先级矩阵(MoSCoW)
+附录

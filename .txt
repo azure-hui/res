@@ -1,0 +1,635 @@
+第四批目标
+模块	目标
+backend/app/deps/permissions.py	实现门店访问权限校验
+backend/app/api/v1/endpoints/stores.py	/stores 按用户权限返回
+backend/app/api/v1/endpoints/dashboard.py	require_store_access 接入
+backend/app/scripts/seed_day2.py	插入最小可测数据
+第四批先定规则
+
+这一批先不要搞复杂 RBAC，先用最小规则跑通。
+
+用户角色规则
+用户	角色	权限
+owner_admin	owner	可访问所有门店
+manager_beijing	manager	只能访问授权门店
+门店数据规则
+门店 ID	门店名
+1001	北京店
+1002	上海店
+你这一批最终要达到的验收
+场景	结果
+owner_admin 登录后访问 /stores	能看到全部门店
+manager_beijing 登录后访问 /stores	只能看到 1001
+manager_beijing 访问 /stores/1001/dashboard/overview	成功
+manager_beijing 访问 /stores/1002/dashboard/overview	返回 40301
+第四批改动文件
+
+你主要会动这 4 个：
+
+backend/app/deps/permissions.py
+backend/app/api/v1/endpoints/stores.py
+backend/app/api/v1/endpoints/dashboard.py
+backend/app/scripts/seed_day2.py
+实施顺序
+
+建议你严格按这个顺序来：
+
+先写 permissions.py
+再改 stores.py
+再改 dashboard.py
+最后写 seed_day2.py
+跑 seed
+手工验证 4 个关键场景
+第 1 步：先写 backend/app/deps/permissions.py
+
+这个文件的职责很明确：
+
+判断当前用户是不是全局可访问门店
+判断当前用户是否可访问某个具体门店
+给 /stores 返回“可访问门店列表”时复用
+推荐实现
+
+前提假设：
+
+你第三批已经有 get_current_user
+get_current_user 能返回 DB 中的 User
+你项目里有统一业务异常类，比如 BusinessException
+
+如果命名和你项目不一样，你只替换对应 import。
+
+from __future__ import annotations
+
+from fastapi import Depends
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.db.session import get_db
+from app.models.store import Store
+from app.models.user import User
+from app.models.user_store_rel import UserStoreRel
+from app.deps.auth import get_current_user
+from app.core.exceptions import BusinessException
+
+
+GLOBAL_STORE_ACCESS_ROLES = {"owner"}
+
+
+def is_global_store_user(user: User) -> bool:
+    return user.role in GLOBAL_STORE_ACCESS_ROLES
+
+
+def get_accessible_store_ids(db: Session, user: User) -> list[int]:
+    if is_global_store_user(user):
+        stmt = select(Store.id).where(Store.is_active.is_(True)).order_by(Store.id)
+        return list(db.scalars(stmt).all())
+
+    stmt = (
+        select(UserStoreRel.store_id)
+        .join(Store, Store.id == UserStoreRel.store_id)
+        .where(
+            UserStoreRel.user_id == user.id,
+            Store.is_active.is_(True),
+        )
+        .order_by(UserStoreRel.store_id)
+    )
+    return list(db.scalars(stmt).all())
+
+
+def require_store_access(
+    store_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Store:
+    store = db.get(Store, store_id)
+    if not store or not store.is_active:
+        raise BusinessException(
+            status_code=404,
+            code=40401,
+            message="门店不存在",
+        )
+
+    if is_global_store_user(current_user):
+        return store
+
+    stmt = select(UserStoreRel).where(
+        UserStoreRel.user_id == current_user.id,
+        UserStoreRel.store_id == store_id,
+    )
+    rel = db.execute(stmt).scalar_one_or_none()
+
+    if rel is None:
+        raise BusinessException(
+            status_code=403,
+            code=40301,
+            message="无权访问该门店",
+        )
+
+    return store
+这一段逻辑解释
+函数	作用
+is_global_store_user	判断是不是 owner 这种全局角色
+get_accessible_store_ids	后面 /stores 可以复用
+require_store_access	后面 dashboard 路由直接 Depends 进来
+第 2 步：改 backend/app/api/v1/endpoints/stores.py
+
+这个接口现在要从 DB 返回可访问门店，而不是 Mock。
+
+目标行为
+owner 用户
+
+返回全部门店
+
+manager 用户
+
+只返回 user_store_rel 里有关系的门店
+
+推荐实现
+
+注意一点：
+
+保持你现在已有响应结构，不要突然改成另一套。
+
+下面先给你“最小可运行版”。
+如果你现有 /stores 的 data 字段结构不同，你就只改 data 的映射，不改最外层。
+
+from __future__ import annotations
+
+from fastapi import APIRouter, Depends, Request
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.core.response import success_response
+from app.db.session import get_db
+from app.models.store import Store
+from app.models.user import User
+from app.models.user_store_rel import UserStoreRel
+from app.deps.auth import get_current_user
+from app.deps.permissions import is_global_store_user
+
+router = APIRouter(prefix="/stores", tags=["stores"])
+
+
+@router.get("", summary="获取当前用户可访问的门店列表")
+async def list_stores(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if is_global_store_user(current_user):
+        stores = db.execute(
+            select(Store)
+            .where(Store.is_active.is_(True))
+            .order_by(Store.id)
+        ).scalars().all()
+
+        items = [
+            {
+                "id": store.id,
+                "name": store.name,
+                "city": store.city,
+                "store_role": "owner",
+            }
+            for store in stores
+        ]
+    else:
+        rows = db.execute(
+            select(Store, UserStoreRel.store_role)
+            .join(UserStoreRel, UserStoreRel.store_id == Store.id)
+            .where(
+                UserStoreRel.user_id == current_user.id,
+                Store.is_active.is_(True),
+            )
+            .order_by(Store.id)
+        ).all()
+
+        items = [
+            {
+                "id": store.id,
+                "name": store.name,
+                "city": store.city,
+                "store_role": store_role,
+            }
+            for store, store_role in rows
+        ]
+
+    return success_response(
+        data={"items": items, "total": len(items)},
+        message="success",
+        request_id=request.state.request_id,
+    )
+如果你原来的 /stores 返回结构不是 items
+
+比如你原来是：
+
+{
+  "code": 0,
+  "message": "success",
+  "data": [
+    ...
+  ]
+}
+
+那你就把这里改成：
+
+data=items
+
+核心原则不变：
+
+只换数据来源，不改前端已经依赖的合同。
+
+第 3 步：改 backend/app/api/v1/endpoints/dashboard.py
+
+这一批的关键是：
+
+GET /stores/{store_id}/dashboard/overview 使用 require_store_access
+
+也就是说，先校验门店权限，再查 dashboard snapshot。
+
+推荐实现
+
+假设你的路由路径就是：
+
+/stores/{store_id}/dashboard/overview
+
+那可以这样写：
+
+from __future__ import annotations
+
+from fastapi import APIRouter, Depends, Request
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.core.response import success_response
+from app.db.session import get_db
+from app.deps.permissions import require_store_access
+from app.models.dashboard_snapshot import DashboardSnapshot
+from app.models.store import Store
+
+router = APIRouter(prefix="/stores", tags=["dashboard"])
+
+
+@router.get("/{store_id}/dashboard/overview", summary="门店仪表盘概览")
+async def dashboard_overview(
+    store: Store = Depends(require_store_access),
+    request: Request = None,
+    db: Session = Depends(get_db),
+):
+    snapshot = db.execute(
+        select(DashboardSnapshot)
+        .where(DashboardSnapshot.store_id == store.id)
+        .order_by(DashboardSnapshot.biz_date.desc())
+    ).scalars().first()
+
+    if snapshot is None:
+        data = {
+            "store_id": store.id,
+            "store_name": store.name,
+            "biz_date": None,
+            "revenue": 0,
+            "order_count": 0,
+            "customer_count": 0,
+        }
+    else:
+        data = {
+            "store_id": store.id,
+            "store_name": store.name,
+            "biz_date": str(snapshot.biz_date),
+            "revenue": float(snapshot.revenue),
+            "order_count": snapshot.order_count,
+            "customer_count": snapshot.customer_count,
+        }
+
+    return success_response(
+        data=data,
+        message="success",
+        request_id=request.state.request_id,
+    )
+这里你要特别注意
+
+如果你现有 dashboard mock 返回的字段更多，比如：
+
+客单价
+同比
+环比
+上座率
+热销菜品
+
+那这一批不要重构接口协议。
+你可以先做“字段兼容映射”，比如：
+
+已有字段继续保留
+当前 DB 没有的字段先给默认值
+先把 store_id / revenue / order_count / customer_count / biz_date 这些真数据接进去
+核心原则仍然是：
+
+先脱离 Mock，后续再丰富字段。
+
+第 4 步：确认 router 挂载没问题
+
+如果你现在已经有 stores.py 和 dashboard.py，检查 api/v1/router.py。
+
+比如：
+
+from fastapi import APIRouter
+from app.api.v1.endpoints import auth, health, stores, dashboard
+
+api_router = APIRouter()
+api_router.include_router(health.router)
+api_router.include_router(auth.router)
+api_router.include_router(stores.router)
+api_router.include_router(dashboard.router)
+第 5 步：写 backend/app/scripts/seed_day2.py
+
+这是第四批的另一个核心。
+
+你的清单要求是：
+
+2 用户
+2 门店
+权限关系
+1 条 dashboard snapshot
+
+我建议种这组数据：
+
+种子数据设计
+用户
+用户名	密码	角色
+owner_admin	owner123	owner
+manager_beijing	manager123	manager
+门店
+ID	名称	城市
+1001	北京朝阳店	北京
+1002	上海浦东店	上海
+权限关系
+用户	门店	store_role
+owner_admin	1001	owner
+owner_admin	1002	owner
+manager_beijing	1001	manager
+Dashboard Snapshot
+门店	biz_date	revenue	order_count	customer_count
+1001	今天	12888.50	156	203
+推荐代码
+from __future__ import annotations
+
+from datetime import date
+
+from sqlalchemy import delete, select
+
+from app.core.security import hash_password
+from app.db.session import SessionLocal
+from app.models.dashboard_snapshot import DashboardSnapshot
+from app.models.store import Store
+from app.models.user import User
+from app.models.user_store_rel import UserStoreRel
+
+
+def upsert_user(db, username: str, password: str, display_name: str, role: str) -> User:
+    user = db.execute(
+        select(User).where(User.username == username)
+    ).scalar_one_or_none()
+
+    if user is None:
+        user = User(
+            username=username,
+            password_hash=hash_password(password),
+            display_name=display_name,
+            role=role,
+            is_active=True,
+        )
+        db.add(user)
+        db.flush()
+    else:
+        user.password_hash = hash_password(password)
+        user.display_name = display_name
+        user.role = role
+        user.is_active = True
+        db.flush()
+
+    return user
+
+
+def upsert_store(db, store_id: int, name: str, city: str) -> Store:
+    store = db.get(Store, store_id)
+    if store is None:
+        store = Store(
+            id=store_id,
+            name=name,
+            city=city,
+            is_active=True,
+        )
+        db.add(store)
+        db.flush()
+    else:
+        store.name = name
+        store.city = city
+        store.is_active = True
+        db.flush()
+
+    return store
+
+
+def main():
+    db = SessionLocal()
+    try:
+        owner = upsert_user(
+            db,
+            username="owner_admin",
+            password="owner123",
+            display_name="Owner Admin",
+            role="owner",
+        )
+
+        manager = upsert_user(
+            db,
+            username="manager_beijing",
+            password="manager123",
+            display_name="Beijing Manager",
+            role="manager",
+        )
+
+        store_1001 = upsert_store(db, 1001, "北京朝阳店", "北京")
+        store_1002 = upsert_store(db, 1002, "上海浦东店", "上海")
+
+        # 清理这两个用户相关的门店关系，避免重复
+        db.execute(
+            delete(UserStoreRel).where(
+                UserStoreRel.user_id.in_([owner.id, manager.id])
+            )
+        )
+        db.flush()
+
+        db.add_all(
+            [
+                UserStoreRel(user_id=owner.id, store_id=store_1001.id, store_role="owner"),
+                UserStoreRel(user_id=owner.id, store_id=store_1002.id, store_role="owner"),
+                UserStoreRel(user_id=manager.id, store_id=store_1001.id, store_role="manager"),
+            ]
+        )
+        db.flush()
+
+        # 先删 1001 的旧快照，再插最小测试数据
+        db.execute(
+            delete(DashboardSnapshot).where(DashboardSnapshot.store_id == store_1001.id)
+        )
+        db.flush()
+
+        db.add(
+            DashboardSnapshot(
+                store_id=store_1001.id,
+                biz_date=date.today(),
+                revenue=12888.50,
+                order_count=156,
+                customer_count=203,
+            )
+        )
+
+        db.commit()
+        print("seed day2 success")
+        print("owner_admin / owner123")
+        print("manager_beijing / manager123")
+        print("stores: 1001, 1002")
+
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
+
+
+if __name__ == "__main__":
+    main()
+第 6 步：运行 seed
+
+在 backend 目录执行：
+
+python -m app.scripts.seed_day2
+
+如果你不是这个目录结构，就按你项目的实际 import 路径来。
+
+成功后你应该看到
+seed day2 success
+owner_admin / owner123
+manager_beijing / manager123
+stores: 1001, 1002
+第 7 步：第四批手工验证
+
+这一批你至少要手测 4 个接口场景。
+
+场景 1：owner 登录成功
+
+请求：
+
+{
+  "username": "owner_admin",
+  "password": "owner123"
+}
+
+预期：
+
+登录成功
+返回 token
+场景 2：manager 登录成功
+
+请求：
+
+{
+  "username": "manager_beijing",
+  "password": "manager123"
+}
+
+预期：
+
+登录成功
+返回 token
+场景 3：manager 访问 /stores
+
+带 manager_beijing 的 token 请求：
+
+GET /api/v1/stores
+Authorization: Bearer <manager_token>
+
+预期：
+
+只返回 1001
+不应包含 1002
+场景 4：manager 访问 1001 仪表盘
+GET /api/v1/stores/1001/dashboard/overview
+Authorization: Bearer <manager_token>
+
+预期：
+
+200 成功
+返回 1001 的仪表盘数据
+场景 5：manager 访问 1002 仪表盘
+GET /api/v1/stores/1002/dashboard/overview
+Authorization: Bearer <manager_token>
+
+预期：
+
+HTTP 403
+业务错误码 40301
+这一批最容易踩的坑
+1）get_current_user 返回的不是 DB User 对象
+
+如果你第三批的 get_current_user 只是返回 token payload，比如：
+
+{"sub": "1", "username": "..."}
+
+那这批会很别扭。
+这批最好让 get_current_user 最终返回 User 实体，不然 permissions.py 里还得重复查库。
+
+推荐做法
+
+让 get_current_user 在 token 解码后，直接 DB 回查用户 并返回 User。
+
+2）owner 既有全局权限又有门店关系，逻辑冲突
+
+不会有大问题。
+你当前最简单的逻辑是：
+
+只要 role == owner，直接放行全部门店
+user_store_rel 只作为数据初始化和后续扩展用
+3）dashboard 沿用旧 mock 字段时对不上
+
+这是第四批最常见问题。
+因为你的前端可能已经依赖某些字段名。
+
+正确处理方式
+
+不要一下子改接口结构，应该：
+
+现有字段继续保留
+有 DB 数据的字段，换成 DB 值
+还没有入库的数据，先给默认值
+4）seed 重复执行报唯一约束错误
+
+所以上面的 seed 我已经用了：
+
+用户先查再更新
+门店先查再更新
+关系先删再插
+snapshot 先删再插
+
+这样你重复跑不会炸。
+
+第四批完成后的验收标准
+
+你做完后，对照这几条：
+
+验收项	标准
+/stores	已从 DB 返回，不再是 Mock
+/stores/{store_id}/dashboard/overview	已接入 require_store_access
+manager_beijing -> 1001	成功
+manager_beijing -> 1002	40301
+seed_day2.py	可重复执行
+最小测试数据	已写入 2 用户、2 门店、权限关系、1 条 snapshot
+你这一批建议的最小落地顺序
+先写 permissions.py
+改 /stores
+改 /stores/{store_id}/dashboard/overview
+写 seed_day2.py
+执行 seed
+测 owner_admin
+测 manager_beijing
+测 1001 成功
+测 1002 返回 40301

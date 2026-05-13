@@ -1,0 +1,203 @@
+﻿前端设计规划
+前端设计遵循2026年主流趋势：移动优先、实时更新、低代码组件，确保在东京高节奏餐饮场景下（店员/老板用手机/平板操作）高效。总开发周期估算：小团队（2-3人前端）3-6个月MVP。
+1. 前端技术栈（完整列表，与后端配合优化）
+类别
+推荐技术选择（主推）
+与后端配合点
+为什么选这个（2026最佳实践）
+备选方案（团队偏好）
+上手成本
+框架/元框架
+Next.js 15+ (App Router + React 19)
+SSR/SSG 渲染后端数据 + API Routes 代理 FastAPI 调用 + WebSocket/SSE 实时订阅
+内置优化（图像/流式响应）+ 与 FastAPI OpenAPI 集成强；Vercel 部署快
+SvelteKit（更轻量） / Nuxt 4（Vue）
+中等
+UI 组件库
+Shadcn/ui + Tailwind CSS v4
+组件复用后端 schema（e.g., 表单用 Pydantic 生成 Zod schema）
+零运行时 + 高度自定义；餐饮UI需卡片/表格/通知，shadcn 响应式强
+Radix UI + Tailwind / Mantine
+低
+状态管理
+Zustand v5
+全局存储 JWT token + 实时数据（从 Redis Streams 推送订阅）
+轻量、无 boilerplate；支持 WebSocket 实时更新仪表盘数据
+Jotai / TanStack Store
+低
+数据获取/缓存
+TanStack Query v5+
+自动缓存 FastAPI API + 乐观更新（e.g., 点单后即时刷新库存）
+与 FastAPI 分页/实时事件完美；内置错误处理/重试
+SWR（Vercel）
+中等
+实时通信
+Socket.IO v5 (WebSocket + SSE fallback)
+连接后端 FastAPI WebSocket/SSE 推送（营收变化、警报、LLM 流式输出）
+兼容性强 + 自动重连；按门店聚合推送防高并发
+原生 WebSocket / Pusher
+低
+图表/可视化
+Recharts v3+ 或 Nivo
+实时渲染后端数据（翻台热图、销量趋势）
+响应式 + 动画；支持 SSE/WebSocket 更新
+Chart.js v4 / Apache ECharts
+低
+表单/交互
+React Hook Form v8 + Zod v3
+表单 schema 与后端 Pydantic 复用（生成 Zod 类型）
+类型安全 + 性能高；语音点单输入集成 Whisper.js
+Formik
+低
+语音/多模态
+Web Speech API + Whisper.js (浏览器/边缘)
+语音输入 → 转文字 → 调用后端 Tool Calling
+浏览器原生 + 边缘 fallback；与后端 LangGraph 协作解析意图
+RecordRTC + 云端 Whisper
+中等
+认证/安全
+axios v1+ + JWT 拦截器
+携带后端 JWT token + refresh 逻辑 + 限流反馈 UI
+与 fastapi-users 配合；拦截 403/429 错误显示弹窗
+fetch + orval (OpenAPI 生成)
+低
+打包/部署
+Vercel 或 Netlify
+与后端 Railway/Fly.io 配合；环境变量同步秘密管理（sops-git/Vault）
+自动 CI/CD + 预览分支；支持 Serverless 函数（边缘上报 proxy）
+Cloudflare Pages / AWS Amplify
+低
+类型安全
+TypeScript v5+ + orval
+从 FastAPI /docs 生成 TS 类型，确保前后端零误差
+防 LLM 参数错误；orval 自动生成客户端代码
+openapi-typescript-codegen
+中等
+测试
+Vitest + React Testing Library + MSW
+Mock FastAPI API + WebSocket 测试
+快速单元/集成测试；MSW 模拟后端响应
+Jest / Playwright
+中等
+PWA/离线
+Next.js PWA 配置 + Workbox
+离线缓存仪表盘 + 推送通知
+餐饮弱网场景友好；与后端 Streams 事件队列同步
+无
+低
+2. 前端项目结构（完整树状，Next.js App Router 风格）
+frontend-restaurant-dashboard/                # 前端仓库根（餐饮SaaS仪表盘 + AI助手）
+├── app/                                       # 页面路由（App Router）
+│   ├── api/                                   # API Routes（代理后端或边缘上报）
+│   │   └── edge-upload/route.ts               # 边缘AI上报代理（MQTT/WebSocket转HTTP）
+│   ├── dashboard/                             # 主仪表盘（老板/店长视图）
+│   │   ├── page.tsx                           # 汇总页（营收/客单价/翻台率/热门菜 Top N）
+│   │   ├── layout.tsx                         # 侧边栏 + 角色切换 + 实时订阅 (Zustand)
+│   │   ├── realtime/                          # 子页：实时监控
+│   │   │   └── page.tsx                       # WebSocket 热图/警报列表
+│   │   └── reports/                           # 子页：日报/趋势分析
+│   │       └── page.tsx                       # LLM 生成报告 + 图表 (Recharts)
+│   ├── waiter/                                # 服务员端（点单/交互助手）
+│   │   ├── page.tsx                           # 主页：桌位列表 + 语音点单
+│   │   └── order/[tableId]/page.tsx           # 具体桌位点单页（表单 + AI upsell 推荐）
+│   ├── kitchen/                               # 后厨端（预测/库存）
+│   │   └── page.tsx                           # 备货建议 + 异常警报
+│   ├── approval/                              # 高风险审批页（库存调整/价格修改）
+│   │   └── page.tsx                           # 审批列表 + 确认弹窗
+│   ├── login/                                 # 认证页
+│   │   └── page.tsx                           # JWT 登录 + refresh 逻辑
+│   ├── layout.tsx                             # 全局布局（导航/通知/主题切换）
+│   └── globals.css                            # Tailwind 全局样式
+├── components/                                # 可复用组件 (shadcn 风格)
+│   ├── ui/                                    # shadcn 组件 (Button, Card, Dialog 等)
+│   ├── DashboardKpiCard.tsx                   # KPI 卡片 (实时数据 + Recharts 小图)
+│   ├── VoiceAssistantButton.tsx               # 语音输入按钮 (Web Speech + fallback Whisper.js)
+│   ├── ApprovalDialog.tsx                     # 高风险操作审批弹窗 (React Hook Form)
+│   ├── NotificationBanner.tsx                 # 实时警报推送 (from WebSocket)
+│   ├── HeatMapChart.tsx                       # 客流密度热图 (Nivo/Recharts)
+│   └── OrderForm.tsx                          # 点单表单 (Hook Form + Zod + AI 建议)
+├── hooks/                                     # 自定义 hooks
+│   ├── useRealtimeSubscription.ts             # TanStack Query + Socket.IO 实时数据订阅
+│   ├── useVoiceInput.ts                       # 语音转文字 + 调用后端 Tool Calling
+│   ├── useAuth.ts                             # JWT 管理 + refresh + 注销
+│   ├── useApproval.ts                         # 审批流状态 + 推送订阅
+│   └── useQueryWithStore.ts                   # TanStack Query + Zustand 同步
+├── lib/                                       # 工具函数
+│   ├── api/                                   # FastAPI 客户端
+│   │   └── client.ts                          # axios + orval 生成 (带 auth interceptor + retry)
+│   ├── websocket.ts                           # Socket.IO 连接管理 (stores-specific channels)
+│   ├── openapi.ts                             # orval 生成 TS 类型 from 后端 /docs
+│   ├── utils.ts                               # 时间格式化、加密校验等
+│   └── zodSchemas.ts                          # Zod schema 从后端 Pydantic 复用
+├── store/                                     # Zustand 全局状态
+│   └── index.ts                               # authState, realtimeKpis, notifications, roleState
+├── public/                                    # 静态资源
+│   ├── favicon.ico
+│   ├── logo.png
+│   └── manifest.json                          # PWA 配置
+├── next.config.mjs                            # Next.js 配置 (WebSocket 支持、图像优化)
+├── tailwind.config.ts                         # Tailwind + shadcn 主题
+├── tsconfig.json                              # TypeScript 配置
+├── package.json                               # 依赖 (next, react, zustand, @tanstack/react-query 等)
+└── README.md                                  # 项目说明 + 启动命令
+前端关键文件说明（与后端配合细节）
+app/dashboard/page.tsx
+渲染实时KPI（营收、翻台、警报）
+用 useRealtimeSubscription hook 订阅后端 WebSocket（e.g., /ws/realtime?store_id=xxx）
+数据从 TanStack Query 缓存 + Zustand 状态同步
+与后端配合：调用 /api/realtime/kpis + 推送事件 from Redis Streams
+components/VoiceAssistantButton.tsx
+点击录音 → Web Speech API 转文字 → 调用后端 /ai/intent (Tool Calling)
+流式显示 LLM 输出（useStream hook）
+与后端配合：后端 LangGraph 处理意图 → call create_order Tool → 返回 order_id
+components/ApprovalDialog.tsx
+高风险操作弹窗（e.g., 调整库存）
+调用 /approval/request → 后端存 audit 表 + 推送通知
+与后端配合：WebSocket 接收审批结果 → 刷新 UI
+lib/api/client.ts
+axios.create({ baseURL: backend_url })
+拦截器：加 JWT header + refresh token 逻辑 + 429 限流重试
+与后端配合：orval 生成类型安全的 API 调用（e.g., api.orders.createOrder(payload)）
+总结：前端总体设计原则
+移动优先：Tailwind 响应式 + PWA，确保手机/平板操作流畅（语音点单/警报推送）。
+实时性：Socket.IO + TanStack Query 最小化轮询，依赖后端 Streams 推送。
+安全：前端不存敏感数据，只存 JWT；所有 API 调用带 token + 校验响应 code。
+大模型配合：前端只做输入采集/输出渲染，核心逻辑在后端 LangGraph（防泄露）。
+开发效率：shadcn 组件 + orval 类型生成，减少前后端对齐时间。
+这个前端结构与后端完美对称（dashboard ↔ realtime_monitoring），总代码量控制在5-10k行。
+3. 潜在改进 / 注意事项（优化建议与落地路径）
+改进点
+当前潜在风险
+前端具体改进措施
+后端配合措施
+实现优先级
+预计工作量
+关键技术/工具
+WebSocket 高峰连接
+多店/多用户同时连接导致服务器连接数爆炸、内存/CPU 压力大、掉线频繁
+1. 每门店连接数限制（前端 Zustand 记录已连接门店，超限提示“请切换门店”） 2. 聚合订阅：前端只订阅当前门店 channel（e.g., ws/realtime/${storeId}） 3. hooks 层自动重连 + 指数退避 4. 连接断开时显示“网络不稳，重连中...”
+1. Redis Streams 按门店独立 channel + consumer group 2. 后端限流：fastapi-limiter 限制每个 IP/用户/门店的 WebSocket 连接数（e.g., 5/分钟） 3. 连接池管理：uvicorn worker + connection limit
+★★★★★
+中等（1-2 周）
+Socket.IO + Zustand + fastapi-limiter
+边缘/语音功能
+浏览器语音识别不稳定（噪音、方言）、延迟高、弱网/离线不可用
+1. 前端优先 Web Speech API（浏览器原生，零成本） 2. fallback 到 Whisper.js（本地 WASM 版，离线可用） 3. 录音权限弹窗 + 超时自动停止 4. 弱网时本地缓存语音片段，网络恢复后批量上传 5. UI 显示“正在听...” → “识别中...” → “点单成功”
+1. /ai/voice-intent 端点接收音频/文本 → LangGraph Tool Calling 2. 边缘上报用 MQTT/WebSocket 轻量通道 3. Redis Streams 暂存离线事件，恢复后回放
+★★★★☆
+中等（2 周）
+Whisper.js + Web Speech API + MQTT.js
+高风险审批可视化
+前端审批状态与后端 audit 表不同步，导致用户重复提交或状态混乱
+1. ApprovalDialog.tsx 使用 TanStack Mutation 乐观更新 + rollback 2. WebSocket 订阅 /ws/approval/${requestId} 实时推送状态变更 3. 列表页用 useRealtimeSubscription hook 自动刷新审批列表 4. 状态图标 + 进度条 + 审批历史时间线
+1. audit 表 + 状态机（pending → approved/rejected） 2. 审批通过/拒绝时触发 Streams 事件 3. 推送通知到对应角色（店长/总部）
+★★★★☆
+低（1 周）
+TanStack Query Mutation + Socket.IO
+离线缓存 / PWA
+餐厅 WiFi 不稳，弱网/断网时仪表盘、点单、审批不可用
+1. Next.js PWA 配置（next-pwa 插件） 2. Workbox 缓存静态资源 + API 响应（TanStack Query offline 支持） 3. 离线点单：本地 IndexedDB 暂存订单，联网后批量同步 4. Service Worker 拦截请求，返回缓存或提示“离线模式” 5. 离线时显示“弱网模式”徽章 + 同步进度条
+1. 后端 Streams 事件队列支持离线重放（DLQ + 回放机制） 2. /sync/offline 端点接收批量离线事件 3. 冲突解决：后端幂等 + 时间戳比对
+★★★☆☆
+中等（2-3 周）
+next-pwa + Workbox + IndexedDB + TanStack Query offline
