@@ -1,0 +1,2647 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Restaurant Dashboard</title>
+<style>
+    :root {
+      --bg: #f6f3f0;
+      --panel: #ffffff;
+      --panel-2: #fbfaf8;
+      --line: #e8e1db;
+      --text: #2c2724;
+      --muted: #7d746d;
+      --accent: #ff6b3d;
+      --accent-2: #a855f7;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #2563eb;
+      --shadow: 0 10px 30px rgba(48, 37, 28, 0.08);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #f8f5f2 0%, #f3efeb 100%);
+      color: var(--text);
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 240px minmax(720px, 1fr) 360px;
+      gap: 18px;
+      min-height: 100vh;
+      padding: 18px;
+    }
+
+    .sidebar, .rightbar, .main {
+      background: rgba(255,255,255,0.65);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.7);
+      box-shadow: var(--shadow);
+      border-radius: 28px;
+    }
+
+    .sidebar {
+      padding: 22px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), #ff9a62);
+      display: grid;
+      place-items: center;
+      color: white;
+      font-size: 20px;
+      box-shadow: 0 8px 18px rgba(255, 107, 61, 0.28);
+    }
+
+    .brand h1 {
+      font-size: 20px;
+      margin: 0;
+      font-weight: 700;
+    }
+
+    .brand p {
+      margin: 3px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .nav-section-title {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 10px;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      transition: 0.2s ease;
+      cursor: pointer;
+    }
+
+    .nav a:hover {
+      background: #fff;
+      transform: translateX(2px);
+    }
+
+    .nav a.active {
+      background: linear-gradient(135deg, rgba(255,107,61,0.12), rgba(255,107,61,0.04));
+      color: #a03a1b;
+      font-weight: 600;
+      border: 1px solid rgba(255,107,61,0.15);
+    }
+
+    .nav .icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: #f3efeb;
+      font-size: 14px;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px;
+      background: linear-gradient(135deg, #2e2926, #463d37);
+      color: #fff;
+      border-radius: 22px;
+    }
+
+    .sidebar-footer h3 { margin: 0 0 6px; font-size: 15px; }
+    .sidebar-footer p { margin: 0 0 12px; font-size: 12px; color: rgba(255,255,255,0.74); line-height: 1.6; }
+    .sidebar-footer button {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fff;
+      color: #2c2724;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .main {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 2px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .userbox {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fed7aa, #fdba74);
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      color: #8a3e18;
+    }
+
+    .store-meta strong { display: block; font-size: 15px; }
+    .store-meta span { font-size: 12px; color: var(--muted); }
+
+    .top-meta {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      background: #fff;
+      border: 1px solid var(--line);
+      padding: 7px 10px;
+      border-radius: 999px;
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .status-open {
+      color: #0f7a36;
+      background: rgba(22,163,74,0.08);
+      border-color: rgba(22,163,74,0.15);
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .title-row h2 {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: -0.02em;
+    }
+
+    .title-row p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+    .btn.primary {
+      background: linear-gradient(135deg, var(--accent), #ff8a5b);
+      color: #fff;
+      border: 0;
+      box-shadow: 0 10px 22px rgba(255, 107, 61, .25);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .metric-card {
+      position: relative;
+      border-radius: 24px;
+      padding: 20px 22px;
+      color: white;
+      min-height: 158px;
+      overflow: hidden;
+    }
+
+    .metric-card.orange { background: linear-gradient(135deg, #ff6b3d, #ff8f63); }
+    .metric-card.purple { background: linear-gradient(135deg, #7c3aed, #b06cff); }
+    .metric-card.green { background: linear-gradient(135deg, #0f9d58, #34d399); }
+    .metric-card.blue { background: linear-gradient(135deg, #2563eb, #60a5fa); }
+
+    .metric-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -30px -40px auto;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      filter: blur(2px);
+    }
+
+    .metric-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .ring {
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      background: conic-gradient(#fff 0turn 0.78turn, rgba(255,255,255,0.2) 0.78turn 1turn);
+      display: grid;
+      place-items: center;
+      box-shadow: inset 0 0 0 6px rgba(255,255,255,0.06);
+      flex-shrink: 0;
+    }
+
+    .ring.small { background: conic-gradient(#fff 0turn 0.62turn, rgba(255,255,255,0.2) 0.62turn 1turn); }
+    .ring::before {
+      content: "";
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.14);
+      border: 8px solid rgba(255,255,255,0.25);
+    }
+
+    .metric-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .metric-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .metric-top h3 {
+      margin: 0;
+      font-size: 40px;
+      line-height: 1;
+    }
+
+    .metric-top span {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-top: 6px;
+      display: inline-block;
+    }
+
+    .metric-content h4 {
+      margin: 8px 0 0;
+      font-size: 18px;
+    }
+
+    .metric-sub {
+      margin-top: 4px;
+      font-size: 13px;
+      opacity: 0.92;
+    }
+
+    .metric-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 18px;
+      font-size: 13px;
+      flex-wrap: wrap;
+    }
+
+    .mini-stats {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      opacity: 0.95;
+    }
+
+    .mini-stats b { font-weight: 700; }
+
+    .metric-footer .btn-white {
+      border: 0;
+      background: white;
+      color: #4a2b1f;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.86);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(33, 24, 18, 0.04);
+      min-width: 0;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .card-header h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .chip.active {
+      color: #a03a1b;
+      border-color: rgba(255,107,61,0.2);
+      background: rgba(255,107,61,0.08);
+    }
+
+    .live-panel {
+      background: linear-gradient(180deg, #1d2b1f, #29462d);
+      min-height: 220px;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      padding: 14px;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .live-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(47, 255, 126, 0.25), transparent 28%),
+        linear-gradient(transparent 96%, rgba(255,255,255,0.05) 96%),
+        linear-gradient(90deg, transparent 96%, rgba(255,255,255,0.04) 96%);
+      background-size: auto, 100% 18px, 18px 100%;
+      opacity: .75;
+      pointer-events: none;
+    }
+
+    .play-btn {
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      display: grid;
+      place-items: center;
+      color: #1e2a1f;
+      font-size: 20px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.24);
+    }
+
+    .live-meta {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-end;
+      margin-top: auto;
+      flex-wrap: wrap;
+    }
+
+    .live-meta strong { font-size: 15px; display: block; }
+    .live-meta span { font-size: 12px; color: rgba(255,255,255,0.72); }
+
+    .insights ul,
+    .list-clean {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .insights li,
+    .list-clean li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .insights li:last-child,
+    .list-clean li:last-child { border-bottom: 0; padding-bottom: 0; }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 8px;
+      flex-shrink: 0;
+      background: var(--success);
+    }
+
+    .dot.warn { background: var(--warning); }
+    .dot.danger { background: var(--danger); }
+    .dot.info { background: var(--info); }
+
+    .bottom-card .stats-tabs,
+    .stats-4 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .stats-4 { grid-template-columns: repeat(4, 1fr); }
+
+    .stat-block {
+      padding: 4px 8px 4px 0;
+      border-right: 1px solid var(--line);
+      min-width: 0;
+    }
+
+    .stat-block:last-child { border-right: 0; }
+
+    .stat-block h4 {
+      margin: 0 0 14px;
+      font-size: 16px;
+    }
+
+    .kpi-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .kpi-row b { color: var(--text); font-size: 16px; }
+
+    .cta-box {
+      margin-top: 14px;
+      background: #eae5df;
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 13px;
+      flex-wrap: wrap;
+    }
+
+    .cta-box button {
+      border: 0;
+      background: #2c2724;
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .rightbar {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .rightbar > h3 {
+      margin: 6px 2px 2px;
+      font-size: 28px;
+      letter-spacing: -0.03em;
+    }
+
+    .panel {
+      background: rgba(255,255,255,0.86);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 16px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .panel-header h4 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .tiny-btn {
+      border: 1px solid var(--line);
+      background: white;
+      padding: 7px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .feed,
+    .tasks {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 320px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .feed-item,
+    .task-item,
+    .table-card,
+    .queue-card,
+    .staff-item,
+    .kanban-card {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfbfa;
+    }
+
+    .feed-item strong,
+    .task-item strong,
+    .staff-item strong,
+    .table-card strong,
+    .queue-card strong,
+    .kanban-card strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .feed-item span,
+    .task-item p,
+    .staff-item span,
+    .table-card span,
+    .queue-card span,
+    .kanban-card span {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .task-item .task-top,
+    .feed-item .meta-line,
+    .staff-item .meta-line,
+    .table-card .meta-line,
+    .queue-card .meta-line,
+    .kanban-card .meta-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .badge {
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge.info { background: rgba(59,130,246,.1); color: #2563eb; }
+    .badge.warn { background: rgba(245,158,11,.14); color: #b45309; }
+    .badge.danger { background: rgba(239,68,68,.12); color: #b91c1c; }
+    .badge.success { background: rgba(22,163,74,.12); color: #15803d; }
+    .badge.gray { background: rgba(107,114,128,.12); color: #4b5563; }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      padding: 6px 0 2px;
+    }
+
+    .ops-grid,
+    .orders-grid,
+    .two-col,
+    .three-col {
+      display: grid;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .ops-grid { grid-template-columns: 1.15fr .85fr; }
+    .orders-grid { grid-template-columns: 1.05fr .95fr; }
+    .two-col { grid-template-columns: 1fr 1fr; }
+    .three-col { grid-template-columns: repeat(3, 1fr); }
+
+    .table-map {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .table-card {
+      min-height: 98px;
+      transition: .2s ease;
+    }
+
+    .table-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .table-card.busy { background: rgba(255,107,61,0.06); border-color: rgba(255,107,61,0.18); }
+    .table-card.waiting { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.2); }
+    .table-card.free { background: rgba(22,163,74,0.06); border-color: rgba(22,163,74,0.18); }
+    .table-card.cleaning { background: rgba(107,114,128,0.08); border-color: rgba(107,114,128,0.18); }
+
+    .progress-group {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .progress-row { display: flex; flex-direction: column; gap: 8px; }
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+    }
+
+    .bar {
+      height: 10px;
+      background: #efe8e2;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), #ff9a62);
+    }
+
+    .bar.green > span { background: linear-gradient(90deg, #16a34a, #4ade80); }
+    .bar.blue > span { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+    .bar.purple > span { background: linear-gradient(90deg, #7c3aed, #c084fc); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead th {
+      text-align: left;
+      color: var(--muted);
+      font-weight: 600;
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    tbody td {
+      padding: 14px 10px;
+      border-bottom: 1px solid #f0ebe6;
+      vertical-align: middle;
+    }
+
+    tbody tr:hover { background: rgba(255,255,255,0.8); }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      display: inline-block;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+      background: var(--success);
+    }
+
+    .kanban {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .kanban-col {
+      background: #faf6f2;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .kanban-col h4 {
+      margin: 0 0 12px;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .kanban-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .amount {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .subtle {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .metric-mini {
+      padding: 14px;
+      border-radius: 16px;
+      background: #fcfbfa;
+      border: 1px solid var(--line);
+    }
+
+    .metric-mini strong {
+      display: block;
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    .metric-mini span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+
+    .ai-layout {
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 16px;
+      margin-bottom: 16px;
+      align-items: start;
+    }
+
+    .ai-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .ai-kpi {
+      background: rgba(255,255,255,0.86);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(33, 24, 18, 0.04);
+    }
+
+    .ai-kpi .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .ai-kpi .value {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+
+    .ai-kpi .hint {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .advice-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .advice-card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fcfbfa;
+      transition: .2s ease;
+      cursor: pointer;
+    }
+
+    .advice-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .advice-card.active {
+      background: linear-gradient(135deg, rgba(255,107,61,0.09), rgba(255,107,61,0.03));
+      border-color: rgba(255,107,61,0.24);
+      box-shadow: 0 10px 22px rgba(255,107,61,.12);
+    }
+
+    .advice-head,
+    .advice-meta,
+    .advice-actions,
+    .detail-metric,
+    .evidence-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .advice-title {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .advice-title strong {
+      font-size: 15px;
+      display: block;
+    }
+
+    .advice-title span,
+    .advice-desc,
+    .detail-copy,
+    .evidence-subtle,
+    .record-note,
+    .empty-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .advice-desc {
+      margin: 10px 0 12px;
+      font-size: 13px;
+      color: #524943;
+    }
+
+    .advice-actions {
+      margin-top: 14px;
+    }
+
+    .advice-actions .btn {
+      padding: 9px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    .advice-chip {
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(107,114,128,0.1);
+      color: #4b5563;
+      white-space: nowrap;
+    }
+
+    .advice-chip.growth { background: rgba(22,163,74,.12); color: #15803d; }
+    .advice-chip.warning { background: rgba(245,158,11,.14); color: #b45309; }
+    .advice-chip.danger { background: rgba(239,68,68,.12); color: #b91c1c; }
+    .advice-chip.info { background: rgba(59,130,246,.12); color: #2563eb; }
+    .advice-chip.purple { background: rgba(124,58,237,.12); color: #7c3aed; }
+
+    .detail-panel,
+    .evidence-panel,
+    .record-panel {
+      background: rgba(255,255,255,0.86);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(33, 24, 18, 0.04);
+      margin-bottom: 16px;
+    }
+
+    .detail-banner {
+      border-radius: 18px;
+      padding: 16px;
+      background: linear-gradient(135deg, #2d2926, #453c36);
+      color: #fff;
+      margin-bottom: 14px;
+    }
+
+    .detail-banner .sub {
+      color: rgba(255,255,255,0.72);
+      font-size: 12px;
+      line-height: 1.7;
+      margin-top: 6px;
+    }
+
+    .detail-section-title {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 16px 0 10px;
+    }
+
+    .detail-metric {
+      padding: 10px 0;
+      border-bottom: 1px solid #f0ebe6;
+      font-size: 13px;
+    }
+
+    .detail-metric:last-child { border-bottom: 0; }
+
+    .detail-metric b {
+      font-size: 15px;
+      color: var(--text);
+    }
+
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .evidence-card {
+      background: #fcfbfa;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 14px;
+    }
+
+    .mini-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .mini-bar .bar {
+      height: 8px;
+    }
+
+    .record-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 280px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .record-item {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfbfa;
+    }
+
+    .record-item strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .record-item .meta-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .advice-hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 1480px) {
+      .stats-4 { grid-template-columns: repeat(2, 1fr); }
+      .table-map { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 1360px) {
+      .app { grid-template-columns: 220px 1fr; }
+      .rightbar { grid-column: span 2; }
+      .ops-grid, .orders-grid, .two-col, .three-col, .content-grid, .kanban, .ai-layout, .ai-kpi-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      .summary-grid, .bottom-card .stats-tabs, .stats-4, .table-map, .mini-grid, .ai-kpi-grid { grid-template-columns: 1fr; }
+      .sidebar, .main, .rightbar { border-radius: 22px; }
+      .rightbar { grid-column: auto; }
+      .kanban { grid-template-columns: 1fr; }
+    }
+  
+
+    .empty-state-box {
+      padding: 16px;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      background: #fcfbfa;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      line-height: 1.8;
+    }
+    .empty-state-box.full-width {
+      grid-column: 1 / -1;
+    }
+    tbody .empty-state-box-row td {
+      text-align: center;
+      color: var(--muted);
+      padding: 22px 10px;
+    }
+    </style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+<div class="brand">
+<div class="brand-badge">🍽</div>
+<div>
+<h1>RestaurantOS</h1>
+<p>智能运营中心</p>
+</div>
+</div>
+<div>
+<div class="nav-section-title">Overview</div>
+<nav class="nav" id="mainNav">
+<a class="active" data-page="dashboard"><span class="icon">▣</span>仪表盘</a>
+<a data-page="operations"><span class="icon">◔</span>门店运营</a>
+<a data-page="orders"><span class="icon">🧾</span>订单中心</a>
+<a data-page="tables"><span class="icon">☷</span>桌台管理</a>
+<a data-page="dishes"><span class="icon">🍜</span>菜品分析</a>
+<a data-page="ai-advice"><span class="icon">✦</span>AI 建议</a>
+</nav>
+</div>
+<div>
+<div class="nav-section-title">Management</div>
+<nav class="nav">
+<a data-page="inventory"><span class="icon">📦</span>库存采购</a>
+<a data-page="members"><span class="icon">👥</span>会员营销</a>
+<a data-page="devices"><span class="icon">📷</span>设备监控</a>
+<a><span class="icon">⚙</span>系统设置</a>
+</nav>
+</div>
+<div class="sidebar-footer">
+<h3>AI 今日建议</h3>
+<p>接口待接入</p>
+<button id="aiActionBtn">查看建议</button>
+</div>
+</aside>
+<main class="main">
+<div class="topbar">
+<div class="userbox">
+<div class="avatar">--</div>
+<div class="store-meta">
+<strong>门店名称</strong>
+<span>视图待接入</span>
+</div>
+</div>
+<div class="top-meta">
+<span id="todayText">日期待接入</span>
+<span class="pill" id="currentTimeText">时间待接入</span>
+<span class="pill" id="weatherText">天气待接入</span>
+<span class="pill status-open" id="businessStatusText">● 状态待接入</span>
+<span class="pill" id="noticeText">提醒待接入</span>
+</div>
+</div>
+<section class="page active" data-page="dashboard">
+<div class="title-row">
+<div>
+<h2>经营仪表盘</h2>
+<p>实时查看门店营收、客流、桌台状态与 AI 运营建议</p>
+</div>
+<div class="actions">
+<button class="btn">导出日报</button>
+<button class="btn primary">新增运营任务</button>
+</div>
+</div>
+<section class="summary-grid">
+<article class="metric-card orange">
+<div class="metric-inner">
+<div class="ring"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3 id="revenueNumber">--</h3>
+<span>待接入</span>
+</div>
+<span>今日经营额</span>
+</div>
+<div>
+<h4>门店营业额</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 订单</span>
+<span><b>--</b> 到店</span>
+<span><b>--</b> 客单价</span>
+</div>
+<button class="btn-white">查看详情</button>
+</div>
+</div>
+</div>
+</article>
+<article class="metric-card purple">
+<div class="metric-inner">
+<div class="ring small"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3 id="liveNumber">--</h3>
+<span>待接入</span>
+</div>
+<span>门店实时状态</span>
+</div>
+<div>
+<h4>当前在店人数</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 空桌</span>
+<span><b>--</b> 占用</span>
+<span><b>--</b> 排队</span>
+</div>
+<button class="btn-white">查看桌态</button>
+</div>
+</div>
+</div>
+</article>
+</section>
+<section class="content-grid">
+<article class="card">
+<div class="card-header">
+<h3>门店实时状态</h3>
+<div class="filters">
+<button class="chip active">大厅 A 区</button>
+<button class="chip">大厅 B 区</button>
+<button class="chip">后厨</button>
+</div>
+</div>
+<div class="live-panel">
+<div class="play-btn">▶</div>
+<div class="live-meta">
+<div>
+<strong>实时画面</strong>
+<span>接口待接入</span>
+</div>
+<button class="tiny-btn">查看详情</button>
+</div>
+</div>
+</article>
+<article class="card insights">
+<div class="card-header">
+<h3>AI 运营摘要</h3>
+<button class="tiny-btn">刷新建议</button>
+</div>
+<ul><li><span class="dot info"></span><div><strong>暂无数据</strong><br/>接口待接入</div></li></ul>
+</article>
+</section>
+<section class="card bottom-card">
+<div class="card-header">
+<h3>渠道经营数据</h3>
+<div class="filters">
+<button class="chip active">今日</button>
+<button class="chip">近 7 天</button>
+<button class="chip">近 30 天</button>
+</div>
+</div>
+<div class="stats-tabs">
+<div class="stat-block">
+<h4>堂食</h4>
+<div class="kpi-row"><span>订单数</span><b>--</b></div>
+<div class="kpi-row"><span>营业额</span><b>--</b></div>
+<div class="kpi-row"><span>客单价</span><b>--</b></div>
+<div class="kpi-row"><span>退款数</span><b>--</b></div>
+</div>
+<div class="stat-block">
+<h4>外卖</h4>
+<div class="kpi-row"><span>订单数</span><b>--</b></div>
+<div class="kpi-row"><span>营业额</span><b>--</b></div>
+<div class="kpi-row"><span>客单价</span><b>--</b></div>
+<div class="kpi-row"><span>退款数</span><b>--</b></div>
+</div>
+<div class="stat-block">
+<h4>自提</h4>
+<div class="kpi-row"><span>订单数</span><b>--</b></div>
+<div class="kpi-row"><span>营业额</span><b>--</b></div>
+<div class="kpi-row"><span>客单价</span><b>--</b></div>
+<div class="kpi-row"><span>退款数</span><b>--</b></div>
+<div class="cta-box">接口待接入<span>晚高峰前建议重点关注堂食翻台与外卖出餐效率</span>
+<button>查看明细</button>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section class="page" data-page="ai-advice">
+<div class="title-row">
+<div>
+<h2>AI 经营建议中心</h2>
+<p>围绕客流、桌台、菜品、库存与服务表现，输出可直接执行的经营建议</p>
+</div>
+<div class="actions">
+<button class="btn">导出建议日报</button>
+<button class="btn" id="refreshAdviceBtn">刷新建议</button>
+<button class="btn primary" id="createTaskBtn">一键生成任务</button>
+</div>
+</div>
+<section class="summary-grid">
+<article class="metric-card orange">
+<div class="metric-inner">
+<div class="ring"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3 id="adviceCount">--</h3>
+<span>待接入</span>
+</div>
+<span>今日建议数</span>
+</div>
+<div>
+<h4>待处理建议</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b id="highPriorityCount">--</b> 高优先级</span>
+<span><b id="pendingCount">--</b> 待处理</span>
+<span><b id="executedCount">--</b> 已执行</span>
+</div>
+<button class="btn-white" id="focusHighPriorityBtn">聚焦高优先级</button>
+</div>
+</div>
+</div>
+</article>
+<article class="metric-card green">
+<div class="metric-inner">
+<div class="ring small"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3>--</h3>
+<span>待接入</span>
+</div>
+<span>预计收益</span>
+</div>
+<div>
+<h4>今日优化空间</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 客单价</span>
+<span><b>--</b> 浪费率</span>
+<span><b>--</b> 排队桌数</span>
+</div>
+<button class="btn-white" id="showGrowthAdviceBtn">查看收益型</button>
+</div>
+</div>
+</div>
+</article>
+</section>
+<section class="ai-kpi-grid">
+<article class="ai-kpi">
+<span class="label">晚高峰预测</span>
+<div class="value">--</div>
+<div class="hint">接口待接入</div>
+</article>
+<article class="ai-kpi">
+<span class="label">库存风险</span>
+<div class="value">--</div>
+<div class="hint">接口待接入</div>
+</article>
+<article class="ai-kpi">
+<span class="label">服务异常</span>
+<div class="value">--</div>
+<div class="hint">接口待接入</div>
+</article>
+</section>
+<section class="card">
+<div class="card-header">
+<h3>建议筛选</h3>
+<div class="filters" id="adviceFilters">
+<button class="chip active" data-filter="all">全部</button>
+<button class="chip" data-filter="high">高优先级</button>
+<button class="chip" data-filter="tables">桌台</button>
+<button class="chip" data-filter="inventory">库存</button>
+<button class="chip" data-filter="dishes">菜品</button>
+<button class="chip" data-filter="service">服务</button>
+</div>
+</div>
+</section>
+<section class="ai-layout">
+<article class="card">
+<div class="card-header">
+<h3>今日建议列表</h3>
+<div class="filters" id="statusFilters">
+<button class="chip active" data-status-filter="all">全部状态</button>
+<button class="chip" data-status-filter="pending">待处理</button>
+<button class="chip" data-status-filter="executing">执行中</button>
+<button class="chip" data-status-filter="done">已完成</button>
+<button class="chip" data-status-filter="ignored">已忽略</button>
+</div>
+</div>
+<div class="advice-list" id="adviceList"><div class="empty-state-box">暂无 AI 建议，接口待接入</div></div>
+</article>
+<aside>
+<section class="detail-panel">
+<div class="panel-header">
+<h4>建议详情</h4>
+<button class="tiny-btn" id="jumpSelectedBtn">定位到卡片</button>
+</div>
+<div class="detail-banner">
+<strong id="detailTitle">--</strong>
+<div class="sub" id="detailTime">接口待接入</div>
+</div>
+<div class="advice-meta">
+<span class="badge danger" id="detailPriority">--</span>
+<span class="advice-chip warning" id="detailType">--</span>
+<span class="badge warn" id="detailStatus">--</span>
+</div>
+<div class="detail-section-title">建议说明</div>
+<div class="detail-copy" id="detailDesc">接口待接入</div>
+<div class="detail-section-title">触发原因</div>
+<div class="detail-copy" id="detailReason">接口待接入</div>
+<div class="detail-section-title">预估效果</div>
+<div class="detail-copy" id="detailEffect">接口待接入</div>
+<div class="detail-section-title">风险提示</div>
+<div class="detail-copy" id="detailRisk">接口待接入</div>
+<div class="detail-section-title">执行信息</div>
+<div class="detail-metric"><span>建议负责人</span><b id="detailOwner">--</b></div>
+<div class="detail-metric"><span>重点时段</span><b id="detailWindow">--</b></div>
+<div class="detail-metric"><span>预估收益 / 价值</span><b id="detailValue">--</b></div>
+<div class="cta-box">接口待接入<span id="detailActionText">接口待接入</span>
+<button id="detailExecuteBtn">等待接入</button>
+</div>
+</section>
+<section class="evidence-panel">
+<div class="panel-header">
+<h4>建议依据</h4>
+<button class="tiny-btn">查看历史</button>
+</div>
+<div class="evidence-grid">
+<div class="evidence-card">
+<div class="evidence-row">
+<strong id="metric1Label">指标 1</strong>
+<span class="evidence-subtle" id="metric1Value">--</span>
+</div>
+<div class="mini-bars">
+<div class="mini-bar">
+<div class="bar"><span id="metric1Bar" style="width:0%;"></span></div>
+</div>
+</div>
+</div>
+<div class="evidence-card">
+<div class="evidence-row">
+<strong id="metric2Label">指标 2</strong>
+<span class="evidence-subtle" id="metric2Value">--</span>
+</div>
+<div class="mini-bars">
+<div class="mini-bar">
+<div class="bar blue"><span id="metric2Bar" style="width:0%;"></span></div>
+</div>
+</div>
+</div>
+<div class="evidence-card">
+<div class="evidence-row">
+<strong id="metric3Label">指标 3</strong>
+<span class="evidence-subtle" id="metric3Value">--</span>
+</div>
+<div class="mini-bars">
+<div class="mini-bar">
+<div class="bar" id="metric3BarWrap"><span id="metric3Bar" style="width:0%;"></span></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="record-panel">
+<div class="panel-header">
+<h4>执行记录</h4>
+<button class="tiny-btn" id="clearRecordBtn">清空本页记录</button>
+</div>
+<div class="record-list" id="adviceRecordList"><div class="empty-state-box">暂无执行记录，接口待接入</div></div>
+</section>
+</aside>
+</section>
+<section class="card bottom-card">
+<div class="card-header">
+<h3>AI 建议效果反馈</h3>
+<div class="filters">
+<button class="chip active">今日</button>
+<button class="chip">近 7 天</button>
+<button class="chip">近 30 天</button>
+</div>
+</div>
+<div class="stats-4">
+<div class="stat-block">
+<h4>建议采纳率</h4>
+<div class="kpi-row"><span>已采纳</span><b>--</b></div>
+<div class="subtle">接口待接入</div>
+</div>
+<div class="stat-block">
+<h4>执行完成率</h4>
+<div class="kpi-row"><span>已完成</span><b>--</b></div>
+<div class="subtle">接口待接入</div>
+</div>
+<div class="stat-block">
+<h4>收益贡献</h4>
+<div class="kpi-row"><span>累计增收</span><b>--</b></div>
+<div class="subtle">接口待接入</div>
+</div>
+<div class="stat-block">
+<h4>建议准确率</h4>
+<div class="kpi-row"><span>本周评估</span><b>--</b></div>
+<div class="subtle">接口待接入</div>
+</div>
+</div>
+</section>
+</section>
+<section class="page" data-page="operations">
+<div class="title-row">
+<div>
+<h2>门店运营</h2>
+<p>聚焦桌台状态、排队管理、人员排班与出餐效率</p>
+</div>
+<div class="actions">
+<button class="btn">导出排班</button>
+<button class="btn primary">新增临时调度</button>
+</div>
+</div>
+<section class="summary-grid">
+<article class="metric-card green">
+<div class="metric-inner">
+<div class="ring"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3>--</h3>
+<span>待接入</span>
+</div>
+<span>桌台总数</span>
+</div>
+<div>
+<h4>桌台使用情况</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 利用率</span>
+<span><b>--</b> 平均翻台</span>
+</div>
+<button class="btn-white">桌态详情</button>
+</div>
+</div>
+</div>
+</article>
+<article class="metric-card blue">
+<div class="metric-inner">
+<div class="ring small"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3>--</h3>
+<span>待接入</span>
+</div>
+<span>等位状态</span>
+</div>
+<div>
+<h4>接口待接入</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 组 2 人</span>
+<span><b>--</b> 组 4 人</span>
+<span><b>--</b> 组 6 人</span>
+</div>
+<button class="btn-white">排队详情</button>
+</div>
+</div>
+</div>
+</article>
+</section>
+<section class="ops-grid">
+<article class="card">
+<div class="card-header">
+<h3>桌台分布图</h3>
+<div class="filters">
+<button class="chip active">大厅 A</button>
+<button class="chip">大厅 B</button>
+<button class="chip">包间</button>
+</div>
+</div>
+<div class="table-map"><div class="empty-state-box full-width">暂无数据，接口待接入</div></div>
+</article>
+<article class="card">
+<div class="card-header">
+<h3>运营效率</h3>
+<button class="tiny-btn">查看时段趋势</button>
+</div>
+<div class="progress-group">
+<div class="progress-row">
+<div class="progress-top"><span>出餐准时率</span><strong>--</strong></div>
+<div class="bar green"><span style="width:0%"></span></div>
+</div>
+<div class="progress-row">
+<div class="progress-top"><span>翻台效率</span><strong>--</strong></div>
+<div class="bar"><span style="width:0%"></span></div>
+</div>
+<div class="progress-row">
+<div class="progress-top"><span>前厅响应速度</span><strong>--</strong></div>
+<div class="bar blue"><span style="width:0%"></span></div>
+</div>
+<div class="progress-row">
+<div class="progress-top"><span>后厨负载</span><strong>--</strong></div>
+<div class="bar purple"><span style="width:0%"></span></div>
+</div>
+</div>
+<div class="cta-box" style="margin-top:18px;">接口待接入<span>接口待接入</span>
+<button>立即处理</button>
+</div>
+</article>
+</section>
+<section class="two-col">
+<article class="card">
+<div class="card-header">
+<h3>当前排队列表</h3>
+<button class="tiny-btn">叫号设置</button>
+</div>
+<div class="tasks"><div class="empty-state-box">暂无数据，接口待接入</div></div>
+</article>
+<article class="card">
+<div class="card-header">
+<h3>员工排班与岗位</h3>
+<button class="tiny-btn">排班管理</button>
+</div>
+<div class="tasks"><div class="empty-state-box">暂无数据，接口待接入</div></div>
+</article>
+</section>
+</section>
+<section class="page" data-page="orders">
+<div class="title-row">
+<div>
+<h2>订单中心</h2>
+<p>统一查看堂食、外卖、自提订单状态与异常处理</p>
+</div>
+<div class="actions">
+<button class="btn">导出订单</button>
+<button class="btn primary">手动录入订单</button>
+</div>
+</div>
+<section class="summary-grid">
+<article class="metric-card orange">
+<div class="metric-inner">
+<div class="ring"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3>--</h3>
+<span>待接入</span>
+</div>
+<span>今日订单</span>
+</div>
+<div>
+<h4>订单处理状态</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 异常</span>
+<span><b>--</b> 催单</span>
+<span><b>--</b> 退款</span>
+</div>
+<button class="btn-white">查看订单流</button>
+</div>
+</div>
+</div>
+</article>
+<article class="metric-card purple">
+<div class="metric-inner">
+<div class="ring small"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3>--</h3>
+<span>待接入</span>
+</div>
+<span>订单价值</span>
+</div>
+<div>
+<h4>渠道占比</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 总收入</span>
+<span><b>--</b> 履约率</span>
+</div>
+<button class="btn-white">渠道分析</button>
+</div>
+</div>
+</div>
+</article>
+</section>
+<section class="orders-grid">
+<article class="card">
+<div class="card-header">
+<h3>订单列表</h3>
+<div class="filters">
+<button class="chip active">全部</button>
+<button class="chip">堂食</button>
+<button class="chip">外卖</button>
+<button class="chip">自提</button>
+</div>
+</div>
+<div style="overflow:auto;">
+<table>
+<thead>
+<tr>
+<th>订单号</th>
+<th>渠道</th>
+<th>桌号/用户</th>
+<th>金额</th>
+<th>状态</th>
+<th>时间</th>
+</tr>
+</thead>
+<tbody><tr class="empty-state-box-row"><td colspan="6">暂无数据，接口待接入</td></tr></tbody>
+</table>
+</div>
+</article>
+<article class="card">
+<div class="card-header">
+<h3>订单看板</h3>
+<button class="tiny-btn">自动刷新</button>
+</div>
+<div class="kanban">
+<div class="kanban-col">
+<h4>接口待接入</h4>
+<div class="kanban-stack"><div class="empty-state-box full-width">暂无数据，接口待接入</div></div>
+</div>
+<div class="kanban-col">
+<h4>接口待接入</h4>
+<div class="kanban-stack"><div class="empty-state-box full-width">暂无数据，接口待接入</div></div>
+</div>
+<div class="kanban-col">
+<h4>接口待接入</h4>
+<div class="kanban-stack"><div class="empty-state-box full-width">暂无数据，接口待接入</div></div>
+</div>
+</div>
+</article>
+</section>
+<section class="two-col">
+<article class="card">
+<div class="card-header">
+<h3>订单指标</h3>
+<button class="tiny-btn">查看趋势</button>
+</div>
+<div class="mini-grid">
+<div class="metric-mini"><strong>--</strong><span>异常订单</span></div>
+<div class="metric-mini"><strong>--</strong><span>催单数量</span></div>
+<div class="metric-mini"><strong>--</strong><span>退款申请</span></div>
+<div class="metric-mini"><strong>--</strong><span>履约成功率</span></div>
+</div>
+<div class="progress-group" style="margin-top:18px;">
+<div class="progress-row">
+<div class="progress-top"><span>堂食履约</span><strong>--</strong></div>
+<div class="bar green"><span style="width:0%"></span></div>
+</div>
+<div class="progress-row">
+<div class="progress-top"><span>外卖履约</span><strong>--</strong></div>
+<div class="bar blue"><span style="width:0%"></span></div>
+</div>
+<div class="progress-row">
+<div class="progress-top"><span>自提履约</span><strong>--</strong></div>
+<div class="bar purple"><span style="width:0%"></span></div>
+</div>
+</div>
+</article>
+<article class="card insights">
+<div class="card-header">
+<h3>异常处理建议</h3>
+<button class="tiny-btn">一键派单</button>
+</div>
+<ul><li><span class="dot info"></span><div><strong>暂无数据</strong><br/>接口待接入</div></li></ul>
+</article>
+</section>
+</section>
+<section class="page" data-page="tables">
+<div class="title-row">
+<div>
+<h2>桌台管理</h2>
+<p>统一查看桌台占用、预订、排队、清台与翻台效率</p>
+</div>
+<div class="actions">
+<button class="btn">导出桌态</button>
+<button class="btn primary">新增预订</button>
+</div>
+</div>
+<section class="summary-grid">
+<article class="metric-card orange">
+<div class="metric-inner">
+<div class="ring"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3>--</h3>
+<span>待接入</span>
+</div>
+<span>桌台总览</span>
+</div>
+<div>
+<h4>接口待接入</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 平均翻台</span>
+<span><b>--</b> 桌待清台</span>
+</div>
+<button class="btn-white">查看布局</button>
+</div>
+</div>
+</div>
+</article>
+<article class="metric-card blue">
+<div class="metric-inner">
+<div class="ring small"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3>--</h3>
+<span>待接入</span>
+</div>
+<span>排队与预订</span>
+</div>
+<div>
+<h4>接口待接入</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 组到店候位</span>
+<span><b>--</b> 单预约即将到店</span>
+</div>
+<button class="btn-white">查看队列</button>
+</div>
+</div>
+</div>
+</article>
+</section>
+<section class="ops-grid">
+<article class="card">
+<div class="card-header">
+<h3>桌台分布总览</h3>
+<div class="filters">
+<button class="chip active">全店</button>
+<button class="chip">大厅 A 区</button>
+<button class="chip">包间</button>
+</div>
+</div>
+<div class="table-map"><div class="empty-state-box full-width">暂无数据，接口待接入</div></div>
+</article>
+<article class="card">
+<div class="card-header">
+<h3>清台与翻台效率</h3>
+<button class="tiny-btn">实时刷新</button>
+</div>
+<div class="progress-group">
+<div class="progress-row">
+<div class="progress-top"><span>大厅 A 区翻台完成率</span><strong>--</strong></div>
+<div class="bar"><span style="width:0%"></span></div>
+</div>
+<div class="progress-row">
+<div class="progress-top"><span>大厅 B 区翻台完成率</span><strong>--</strong></div>
+<div class="bar blue"><span style="width:0%"></span></div>
+</div>
+<div class="progress-row">
+<div class="progress-top"><span>包间清洁合格率</span><strong>--</strong></div>
+<div class="bar green"><span style="width:0%"></span></div>
+</div>
+<div class="progress-row">
+<div class="progress-top"><span>预订准时到座率</span><strong>--</strong></div>
+<div class="bar purple"><span style="width:0%"></span></div>
+</div>
+</div>
+<div class="cta-box" style="margin-top:18px;">接口待接入<span>接口待接入</span>
+<button>执行调度</button>
+</div>
+</article>
+</section>
+<section class="two-col">
+<article class="card">
+<div class="card-header">
+<h3>候位与预订队列</h3>
+<button class="tiny-btn">叫号设置</button>
+</div>
+<div class="tasks"><div class="empty-state-box">暂无数据，接口待接入</div></div>
+</article>
+<article class="card insights">
+<div class="card-header">
+<h3>桌台运营建议</h3>
+<button class="tiny-btn">生成报告</button>
+</div>
+<ul><li><span class="dot info"></span><div><strong>暂无数据</strong><br/>接口待接入</div></li></ul>
+</article>
+</section>
+</section>
+<section class="page" data-page="dishes">
+<div class="title-row">
+<div>
+<h2>菜品分析</h2>
+<p>查看菜品销量、毛利、口味反馈、售罄风险与推荐组合</p>
+</div>
+<div class="actions">
+<button class="btn">导出菜品报表</button>
+<button class="btn primary">更新菜单策略</button>
+</div>
+</div>
+<section class="summary-grid">
+<article class="metric-card purple">
+<div class="metric-inner">
+<div class="ring"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3>--</h3>
+<span>待接入</span>
+</div>
+<span>销量冠军</span>
+</div>
+<div>
+<h4>接口待接入</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 销售额</span>
+<span><b>--</b> 毛利率</span>
+</div>
+<button class="btn-white">查看详情</button>
+</div>
+</div>
+</div>
+</article>
+<article class="metric-card green">
+<div class="metric-inner">
+<div class="ring small"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3>--</h3>
+<span>待接入</span>
+</div>
+<span>菜单健康度</span>
+</div>
+<div>
+<h4>接口待接入</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 综合评分</span>
+<span><b>--</b> 款差评集中</span>
+</div>
+<button class="btn-white">查看菜单</button>
+</div>
+</div>
+</div>
+</article>
+</section>
+<section class="orders-grid">
+<article class="card">
+<div class="card-header">
+<h3>菜品表现排行</h3>
+<div class="filters">
+<button class="chip active">销量</button>
+<button class="chip">毛利</button>
+<button class="chip">好评率</button>
+</div>
+</div>
+<div style="overflow:auto;">
+<table>
+<thead>
+<tr>
+<th>菜品</th>
+<th>分类</th>
+<th>销量</th>
+<th>销售额</th>
+<th>毛利率</th>
+<th>评价</th>
+</tr>
+</thead>
+<tbody><tr class="empty-state-box-row"><td colspan="6">暂无数据，接口待接入</td></tr></tbody>
+</table>
+</div>
+</article>
+<article class="card">
+<div class="card-header">
+<h3>分类经营表现</h3>
+<button class="tiny-btn">查看趋势</button>
+</div>
+<div class="progress-group">
+<div class="progress-row">
+<div class="progress-top"><span>锅底类贡献</span><strong>--</strong></div>
+<div class="bar"><span style="width:0%"></span></div>
+</div>
+<div class="progress-row">
+<div class="progress-top"><span>招牌菜贡献</span><strong>--</strong></div>
+<div class="bar purple"><span style="width:0%"></span></div>
+</div>
+<div class="progress-row">
+<div class="progress-top"><span>饮品加购率</span><strong>--</strong></div>
+<div class="bar blue"><span style="width:0%"></span></div>
+</div>
+<div class="progress-row">
+<div class="progress-top"><span>甜品转化率</span><strong>--</strong></div>
+<div class="bar green"><span style="width:0%"></span></div>
+</div>
+</div>
+<div class="mini-grid" style="margin-top:18px;">
+<div class="metric-mini"><strong>--</strong><span>售罄预警</span></div>
+<div class="metric-mini"><strong>--</strong><span>滞销菜品</span></div>
+<div class="metric-mini"><strong>--</strong><span>加饮转化</span></div>
+<div class="metric-mini"><strong>--</strong><span>人均加购额</span></div>
+</div>
+</article>
+</section>
+<section class="two-col">
+<article class="card insights">
+<div class="card-header">
+<h3>AI 菜品策略建议</h3>
+<button class="tiny-btn">应用推荐</button>
+</div>
+<ul><li><span class="dot info"></span><div><strong>暂无数据</strong><br/>接口待接入</div></li></ul>
+</article>
+<article class="card">
+<div class="card-header">
+<h3>库存与售罄风险</h3>
+<button class="tiny-btn">同步采购</button>
+</div>
+<div class="tasks">
+<div class="empty-state-box">暂无数据，接口待接入</div></div>
+</article>
+</section>
+</section>
+<section class="page" data-page="inventory">
+<div class="title-row">
+<div>
+<h2>库存采购</h2>
+<p>查看库存健康度、采购计划、预警与到货进度，当前页面数据全部预留接口接入</p>
+</div>
+<div class="actions">
+<button class="btn">导出采购单</button>
+<button class="btn primary">新建采购计划</button>
+</div>
+</div>
+<section class="summary-grid">
+<article class="metric-card orange">
+<div class="metric-inner">
+<div class="ring"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3>--</h3>
+<span>库存健康度</span>
+</div>
+<span>今日库存</span>
+</div>
+<div>
+<h4>安全库存状态</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 预警品项</span>
+<span><b>--</b> 安全库存</span>
+</div>
+<button class="btn-white">查看明细</button>
+</div>
+</div>
+</div>
+</article>
+<article class="metric-card purple">
+<div class="metric-inner">
+<div class="ring small"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3>--</h3>
+<span>待采购数</span>
+</div>
+<span>采购任务</span>
+</div>
+<div>
+<h4>采购计划执行</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 待审批</span>
+<span><b>--</b> 待下单</span>
+</div>
+<button class="btn-white">查看计划</button>
+</div>
+</div>
+</div>
+</article>
+<article class="metric-card green">
+<div class="metric-inner">
+<div class="ring"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3>--</h3>
+<span>到货完成率</span>
+</div>
+<span>到货状态</span>
+</div>
+<div>
+<h4>供应到货跟踪</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 在途订单</span>
+<span><b>--</b> 已收货</span>
+</div>
+<button class="btn-white">查看物流</button>
+</div>
+</div>
+</div>
+</article>
+<article class="metric-card blue">
+<div class="metric-inner">
+<div class="ring small"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3>--</h3>
+<span>采购金额</span>
+</div>
+<span>成本控制</span>
+</div>
+<div>
+<h4>周期采购成本</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 本日</span>
+<span><b>--</b> 本周</span>
+</div>
+<button class="btn-white">成本分析</button>
+</div>
+</div>
+</div>
+</article>
+</section>
+<section class="ops-grid">
+<article class="card">
+<div class="card-header">
+<h3>库存分类看板</h3>
+<div class="filters">
+<button class="chip active">全部分类</button>
+<button class="chip">食材</button>
+<button class="chip">饮品</button>
+<button class="chip">耗材</button>
+</div>
+</div>
+<div class="progress-group">
+<div class="progress-row">
+<div class="progress-top"><span>核心食材</span><b>--</b></div>
+<div class="bar"><span style="width:0%"></span></div>
+</div>
+<div class="progress-row">
+<div class="progress-top"><span>饮品原料</span><b>--</b></div>
+<div class="bar blue"><span style="width:0%"></span></div>
+</div>
+<div class="progress-row">
+<div class="progress-top"><span>包装耗材</span><b>--</b></div>
+<div class="bar green"><span style="width:0%"></span></div>
+</div>
+<div class="progress-row">
+<div class="progress-top"><span>冷冻库存</span><b>--</b></div>
+<div class="bar purple"><span style="width:0%"></span></div>
+</div>
+</div>
+<div class="cta-box">
+<div>
+<strong>库存数据待接入</strong>
+<div class="subtle">可接入库存汇总、实时余量、安全阈值、周转天数等接口</div>
+</div>
+<button>配置接口</button>
+</div>
+</article>
+<article class="card">
+<div class="card-header">
+<h3>采购与预警</h3>
+<button class="tiny-btn">查看全部</button>
+</div>
+<div class="tasks">
+<div class="empty-state-box">暂无数据，接口待接入</div>
+</div>
+</article>
+</section>
+<section class="card">
+<div class="card-header">
+<h3>采购计划列表</h3>
+<div class="filters">
+<button class="chip active">全部</button>
+<button class="chip">待审批</button>
+<button class="chip">采购中</button>
+<button class="chip">已完成</button>
+</div>
+</div>
+<div style="overflow:auto;">
+<table>
+<thead>
+<tr>
+<th>计划单号</th>
+<th>供应商</th>
+<th>预计到货时间</th>
+<th>采购金额</th>
+<th>状态</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr class="empty-state-box-row"><td colspan="6">暂无数据，接口待接入</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section class="page" data-page="members">
+<div class="title-row">
+<div>
+<h2>会员营销</h2>
+<p>查看会员增长、活跃度、复购转化与活动执行情况，当前页面数据全部预留接口接入</p>
+</div>
+<div class="actions">
+<button class="btn">导出会员报表</button>
+<button class="btn primary">创建营销活动</button>
+</div>
+</div>
+<section class="summary-grid">
+<article class="metric-card purple">
+<div class="metric-inner">
+<div class="ring"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3>--</h3>
+<span>会员总数</span>
+</div>
+<span>会员规模</span>
+</div>
+<div>
+<h4>会员增长趋势</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 新增</span>
+<span><b>--</b> 净增长</span>
+</div>
+<button class="btn-white">查看增长</button>
+</div>
+</div>
+</div>
+</article>
+<article class="metric-card orange">
+<div class="metric-inner">
+<div class="ring small"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3>--</h3>
+<span>活跃会员</span>
+</div>
+<span>近周期活跃</span>
+</div>
+<div>
+<h4>到店活跃度</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 到店</span>
+<span><b>--</b> 沉默</span>
+</div>
+<button class="btn-white">查看活跃</button>
+</div>
+</div>
+</div>
+</article>
+<article class="metric-card green">
+<div class="metric-inner">
+<div class="ring"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3>--</h3>
+<span>复购率</span>
+</div>
+<span>复购转化</span>
+</div>
+<div>
+<h4>会员复购表现</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 本周</span>
+<span><b>--</b> 本月</span>
+</div>
+<button class="btn-white">查看复购</button>
+</div>
+</div>
+</div>
+</article>
+<article class="metric-card blue">
+<div class="metric-inner">
+<div class="ring small"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3>--</h3>
+<span>营销转化</span>
+</div>
+<span>活动表现</span>
+</div>
+<div>
+<h4>优惠活动效果</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 触达</span>
+<span><b>--</b> 核销</span>
+</div>
+<button class="btn-white">查看活动</button>
+</div>
+</div>
+</div>
+</article>
+</section>
+<section class="two-col">
+<article class="card">
+<div class="card-header">
+<h3>会员分层概览</h3>
+<button class="tiny-btn">查看分层规则</button>
+</div>
+<div class="mini-grid">
+<div class="metric-mini"><strong>--</strong><span>普通会员</span></div>
+<div class="metric-mini"><strong>--</strong><span>活跃会员</span></div>
+<div class="metric-mini"><strong>--</strong><span>高价值会员</span></div>
+<div class="metric-mini"><strong>--</strong><span>沉默会员</span></div>
+</div>
+<div class="cta-box">
+<div>
+<strong>会员画像接口待接入</strong>
+<div class="subtle">可接入等级、标签、生命周期、偏好品类、消费频次等字段</div>
+</div>
+<button>配置接口</button>
+</div>
+</article>
+<article class="card insights">
+<div class="card-header">
+<h3>营销建议与触达任务</h3>
+<button class="tiny-btn">新建触达</button>
+</div>
+<ul>
+<li><span class="dot info"></span><div><strong>暂无营销建议</strong><br/>接口待接入</div></li>
+<li><span class="dot warn"></span><div><strong>暂无待执行活动</strong><br/>接口待接入</div></li>
+<li><span class="dot danger"></span><div><strong>暂无沉默会员召回任务</strong><br/>接口待接入</div></li>
+</ul>
+</article>
+</section>
+<section class="card">
+<div class="card-header">
+<h3>活动执行列表</h3>
+<div class="filters">
+<button class="chip active">全部活动</button>
+<button class="chip">进行中</button>
+<button class="chip">待开始</button>
+<button class="chip">已结束</button>
+</div>
+</div>
+<div style="overflow:auto;">
+<table>
+<thead>
+<tr>
+<th>活动名称</th>
+<th>触达人群</th>
+<th>开始时间</th>
+<th>结束时间</th>
+<th>状态</th>
+<th>转化结果</th>
+</tr>
+</thead>
+<tbody>
+<tr class="empty-state-box-row"><td colspan="6">暂无数据，接口待接入</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section class="page" data-page="devices">
+<div class="title-row">
+<div>
+<h2>设备监控</h2>
+<p>统一监控摄像头、POS、打印机、后厨屏、网络与识别服务状态</p>
+</div>
+<div class="actions">
+<button class="btn">导出巡检</button>
+<button class="btn primary">新增告警规则</button>
+</div>
+</div>
+<section class="summary-grid">
+<article class="metric-card blue">
+<div class="metric-inner">
+<div class="ring"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3>--</h3>
+<span>待接入</span>
+</div>
+<span>设备在线率</span>
+</div>
+<div>
+<h4>接口待接入</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 离线</span>
+<span><b>--</b> 告警</span>
+</div>
+<button class="btn-white">查看拓扑</button>
+</div>
+</div>
+</div>
+</article>
+<article class="metric-card orange">
+<div class="metric-inner">
+<div class="ring small"></div>
+<div class="metric-content">
+<div class="metric-top">
+<div>
+<h3>--</h3>
+<span>待接入</span>
+</div>
+<span>系统性能</span>
+</div>
+<div>
+<h4>接口待接入</h4>
+<div class="metric-sub">接口待接入</div>
+</div>
+<div class="metric-footer">
+<div class="mini-stats">
+<span><b>--</b> 存储占用</span>
+<span><b>--</b> 今日可用率</span>
+</div>
+<button class="btn-white">服务详情</button>
+</div>
+</div>
+</div>
+</article>
+</section>
+<section class="orders-grid">
+<article class="card">
+<div class="card-header">
+<h3>设备状态列表</h3>
+<div class="filters">
+<button class="chip active">全部</button>
+<button class="chip">摄像头</button>
+<button class="chip">收银设备</button>
+<button class="chip">厨房设备</button>
+</div>
+</div>
+<div style="overflow:auto;">
+<table>
+<thead>
+<tr>
+<th>设备</th>
+<th>位置</th>
+<th>类型</th>
+<th>状态</th>
+<th>最近心跳</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr class="empty-state-box-row"><td colspan="6">暂无数据，接口待接入</td></tr></tbody>
+</table>
+</div>
+</article>
+<article class="card">
+<div class="card-header">
+<h3>监控任务与资源</h3>
+<button class="tiny-btn">巡检面板</button>
+</div>
+<div class="progress-group">
+<div class="progress-row">
+<div class="progress-top"><span>客流识别任务负载</span><strong>--</strong></div>
+<div class="bar blue"><span style="width:0%"></span></div>
+</div>
+<div class="progress-row">
+<div class="progress-top"><span>桌态识别任务负载</span><strong>--</strong></div>
+<div class="bar purple"><span style="width:0%"></span></div>
+</div>
+<div class="progress-row">
+<div class="progress-top"><span>本地存储使用率</span><strong>--</strong></div>
+<div class="bar"><span style="width:0%"></span></div>
+</div>
+<div class="progress-row">
+<div class="progress-top"><span>网络带宽占用</span><strong>--</strong></div>
+<div class="bar green"><span style="width:0%"></span></div>
+</div>
+</div>
+<div class="mini-grid" style="margin-top:18px;">
+<div class="metric-mini"><strong>--</strong><span>今日告警</span></div>
+<div class="metric-mini"><strong>--</strong><span>需人工处理</span></div>
+<div class="metric-mini"><strong>--</strong><span>服务可用率</span></div>
+<div class="metric-mini"><strong>--</strong><span>自动恢复次数</span></div>
+</div>
+</article>
+</section>
+<section class="two-col">
+<article class="card insights">
+<div class="card-header">
+<h3>异常与维护建议</h3>
+<button class="tiny-btn">生成工单</button>
+</div>
+<ul><li><span class="dot info"></span><div><strong>暂无数据</strong><br/>接口待接入</div></li></ul>
+</article>
+<article class="card">
+<div class="card-header">
+<h3>维护计划</h3>
+<button class="tiny-btn">查看历史</button>
+</div>
+<div class="tasks"><div class="empty-state-box">暂无数据，接口待接入</div></div>
+</article>
+</section>
+</section>
+</main>
+<aside class="rightbar">
+<h3>运营动态</h3>
+<section class="panel">
+<div class="panel-header">
+<h4>实时动态</h4>
+<button class="tiny-btn">查看全部</button>
+</div>
+<div class="feed" id="activityFeed"><div class="empty-state-box">暂无数据，接口待接入</div></div>
+</section>
+<section class="panel">
+<div class="panel-header">
+<h4>自动任务与告警</h4>
+<button class="tiny-btn">任务配置</button>
+</div>
+<div class="tasks"><div class="empty-state-box">暂无数据，接口待接入</div></div>
+</section>
+<div class="footer-note">页面结构保留，数据接口待接入</div>
+</aside>
+</div>
+<script>
+    const navLinks = document.querySelectorAll('a[data-page]');
+    const pages = document.querySelectorAll('.page');
+    const aiActionBtn = document.getElementById('aiActionBtn');
+
+    function showPage(page) {
+      navLinks.forEach(item => item.classList.toggle('active', item.dataset.page === page));
+      pages.forEach(item => item.classList.toggle('active', item.dataset.page === page));
+    }
+
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        const page = link.dataset.page;
+        if (page) showPage(page);
+      });
+    });
+
+    aiActionBtn?.addEventListener('click', () => {
+      showPage('ai-advice');
+    });
+
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const parent = chip.parentElement;
+        if (!parent) return;
+        parent.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

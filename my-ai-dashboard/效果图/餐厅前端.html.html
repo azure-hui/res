@@ -1,0 +1,3065 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Restaurant Dashboard</title>
+  <style>
+    :root {
+      --bg: #f6f3f0;
+      --panel: #ffffff;
+      --panel-2: #fbfaf8;
+      --line: #e8e1db;
+      --text: #2c2724;
+      --muted: #7d746d;
+      --accent: #ff6b3d;
+      --accent-2: #a855f7;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #2563eb;
+      --shadow: 0 10px 30px rgba(48, 37, 28, 0.08);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #f8f5f2 0%, #f3efeb 100%);
+      color: var(--text);
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 240px minmax(720px, 1fr) 360px;
+      gap: 18px;
+      min-height: 100vh;
+      padding: 18px;
+    }
+
+    .sidebar, .rightbar, .main {
+      background: rgba(255,255,255,0.65);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.7);
+      box-shadow: var(--shadow);
+      border-radius: 28px;
+    }
+
+    .sidebar {
+      padding: 22px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), #ff9a62);
+      display: grid;
+      place-items: center;
+      color: white;
+      font-size: 20px;
+      box-shadow: 0 8px 18px rgba(255, 107, 61, 0.28);
+    }
+
+    .brand h1 {
+      font-size: 20px;
+      margin: 0;
+      font-weight: 700;
+    }
+
+    .brand p {
+      margin: 3px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .nav-section-title {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 10px;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      transition: 0.2s ease;
+      cursor: pointer;
+    }
+
+    .nav a:hover {
+      background: #fff;
+      transform: translateX(2px);
+    }
+
+    .nav a.active {
+      background: linear-gradient(135deg, rgba(255,107,61,0.12), rgba(255,107,61,0.04));
+      color: #a03a1b;
+      font-weight: 600;
+      border: 1px solid rgba(255,107,61,0.15);
+    }
+
+    .nav .icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: #f3efeb;
+      font-size: 14px;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px;
+      background: linear-gradient(135deg, #2e2926, #463d37);
+      color: #fff;
+      border-radius: 22px;
+    }
+
+    .sidebar-footer h3 { margin: 0 0 6px; font-size: 15px; }
+    .sidebar-footer p { margin: 0 0 12px; font-size: 12px; color: rgba(255,255,255,0.74); line-height: 1.6; }
+    .sidebar-footer button {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fff;
+      color: #2c2724;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .main {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 2px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .userbox {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fed7aa, #fdba74);
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      color: #8a3e18;
+    }
+
+    .store-meta strong { display: block; font-size: 15px; }
+    .store-meta span { font-size: 12px; color: var(--muted); }
+
+    .top-meta {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      background: #fff;
+      border: 1px solid var(--line);
+      padding: 7px 10px;
+      border-radius: 999px;
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .status-open {
+      color: #0f7a36;
+      background: rgba(22,163,74,0.08);
+      border-color: rgba(22,163,74,0.15);
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .title-row h2 {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: -0.02em;
+    }
+
+    .title-row p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+    .btn.primary {
+      background: linear-gradient(135deg, var(--accent), #ff8a5b);
+      color: #fff;
+      border: 0;
+      box-shadow: 0 10px 22px rgba(255, 107, 61, .25);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .metric-card {
+      position: relative;
+      border-radius: 24px;
+      padding: 20px 22px;
+      color: white;
+      min-height: 158px;
+      overflow: hidden;
+    }
+
+    .metric-card.orange { background: linear-gradient(135deg, #ff6b3d, #ff8f63); }
+    .metric-card.purple { background: linear-gradient(135deg, #7c3aed, #b06cff); }
+    .metric-card.green { background: linear-gradient(135deg, #0f9d58, #34d399); }
+    .metric-card.blue { background: linear-gradient(135deg, #2563eb, #60a5fa); }
+
+    .metric-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -30px -40px auto;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      filter: blur(2px);
+    }
+
+    .metric-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .ring {
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      background: conic-gradient(#fff 0turn 0.78turn, rgba(255,255,255,0.2) 0.78turn 1turn);
+      display: grid;
+      place-items: center;
+      box-shadow: inset 0 0 0 6px rgba(255,255,255,0.06);
+      flex-shrink: 0;
+    }
+
+    .ring.small { background: conic-gradient(#fff 0turn 0.62turn, rgba(255,255,255,0.2) 0.62turn 1turn); }
+    .ring::before {
+      content: "";
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.14);
+      border: 8px solid rgba(255,255,255,0.25);
+    }
+
+    .metric-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .metric-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .metric-top h3 {
+      margin: 0;
+      font-size: 40px;
+      line-height: 1;
+    }
+
+    .metric-top span {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-top: 6px;
+      display: inline-block;
+    }
+
+    .metric-content h4 {
+      margin: 8px 0 0;
+      font-size: 18px;
+    }
+
+    .metric-sub {
+      margin-top: 4px;
+      font-size: 13px;
+      opacity: 0.92;
+    }
+
+    .metric-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 18px;
+      font-size: 13px;
+      flex-wrap: wrap;
+    }
+
+    .mini-stats {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      opacity: 0.95;
+    }
+
+    .mini-stats b { font-weight: 700; }
+
+    .metric-footer .btn-white {
+      border: 0;
+      background: white;
+      color: #4a2b1f;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.86);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(33, 24, 18, 0.04);
+      min-width: 0;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .card-header h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .chip.active {
+      color: #a03a1b;
+      border-color: rgba(255,107,61,0.2);
+      background: rgba(255,107,61,0.08);
+    }
+
+    .live-panel {
+      background: linear-gradient(180deg, #1d2b1f, #29462d);
+      min-height: 220px;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      padding: 14px;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .live-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(47, 255, 126, 0.25), transparent 28%),
+        linear-gradient(transparent 96%, rgba(255,255,255,0.05) 96%),
+        linear-gradient(90deg, transparent 96%, rgba(255,255,255,0.04) 96%);
+      background-size: auto, 100% 18px, 18px 100%;
+      opacity: .75;
+      pointer-events: none;
+    }
+
+    .play-btn {
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      display: grid;
+      place-items: center;
+      color: #1e2a1f;
+      font-size: 20px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.24);
+    }
+
+    .live-meta {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-end;
+      margin-top: auto;
+      flex-wrap: wrap;
+    }
+
+    .live-meta strong { font-size: 15px; display: block; }
+    .live-meta span { font-size: 12px; color: rgba(255,255,255,0.72); }
+
+    .insights ul,
+    .list-clean {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .insights li,
+    .list-clean li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .insights li:last-child,
+    .list-clean li:last-child { border-bottom: 0; padding-bottom: 0; }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 8px;
+      flex-shrink: 0;
+      background: var(--success);
+    }
+
+    .dot.warn { background: var(--warning); }
+    .dot.danger { background: var(--danger); }
+    .dot.info { background: var(--info); }
+
+    .bottom-card .stats-tabs,
+    .stats-4 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .stats-4 { grid-template-columns: repeat(4, 1fr); }
+
+    .stat-block {
+      padding: 4px 8px 4px 0;
+      border-right: 1px solid var(--line);
+      min-width: 0;
+    }
+
+    .stat-block:last-child { border-right: 0; }
+
+    .stat-block h4 {
+      margin: 0 0 14px;
+      font-size: 16px;
+    }
+
+    .kpi-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .kpi-row b { color: var(--text); font-size: 16px; }
+
+    .cta-box {
+      margin-top: 14px;
+      background: #eae5df;
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 13px;
+      flex-wrap: wrap;
+    }
+
+    .cta-box button {
+      border: 0;
+      background: #2c2724;
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .rightbar {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .rightbar > h3 {
+      margin: 6px 2px 2px;
+      font-size: 28px;
+      letter-spacing: -0.03em;
+    }
+
+    .panel {
+      background: rgba(255,255,255,0.86);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 16px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .panel-header h4 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .tiny-btn {
+      border: 1px solid var(--line);
+      background: white;
+      padding: 7px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .feed,
+    .tasks {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 320px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .feed-item,
+    .task-item,
+    .table-card,
+    .queue-card,
+    .staff-item,
+    .kanban-card {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfbfa;
+    }
+
+    .feed-item strong,
+    .task-item strong,
+    .staff-item strong,
+    .table-card strong,
+    .queue-card strong,
+    .kanban-card strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .feed-item span,
+    .task-item p,
+    .staff-item span,
+    .table-card span,
+    .queue-card span,
+    .kanban-card span {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .task-item .task-top,
+    .feed-item .meta-line,
+    .staff-item .meta-line,
+    .table-card .meta-line,
+    .queue-card .meta-line,
+    .kanban-card .meta-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .badge {
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge.info { background: rgba(59,130,246,.1); color: #2563eb; }
+    .badge.warn { background: rgba(245,158,11,.14); color: #b45309; }
+    .badge.danger { background: rgba(239,68,68,.12); color: #b91c1c; }
+    .badge.success { background: rgba(22,163,74,.12); color: #15803d; }
+    .badge.gray { background: rgba(107,114,128,.12); color: #4b5563; }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      padding: 6px 0 2px;
+    }
+
+    .ops-grid,
+    .orders-grid,
+    .two-col,
+    .three-col {
+      display: grid;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .ops-grid { grid-template-columns: 1.15fr .85fr; }
+    .orders-grid { grid-template-columns: 1.05fr .95fr; }
+    .two-col { grid-template-columns: 1fr 1fr; }
+    .three-col { grid-template-columns: repeat(3, 1fr); }
+
+    .table-map {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .table-card {
+      min-height: 98px;
+      transition: .2s ease;
+    }
+
+    .table-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .table-card.busy { background: rgba(255,107,61,0.06); border-color: rgba(255,107,61,0.18); }
+    .table-card.waiting { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.2); }
+    .table-card.free { background: rgba(22,163,74,0.06); border-color: rgba(22,163,74,0.18); }
+    .table-card.cleaning { background: rgba(107,114,128,0.08); border-color: rgba(107,114,128,0.18); }
+
+    .progress-group {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .progress-row { display: flex; flex-direction: column; gap: 8px; }
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+    }
+
+    .bar {
+      height: 10px;
+      background: #efe8e2;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), #ff9a62);
+    }
+
+    .bar.green > span { background: linear-gradient(90deg, #16a34a, #4ade80); }
+    .bar.blue > span { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+    .bar.purple > span { background: linear-gradient(90deg, #7c3aed, #c084fc); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead th {
+      text-align: left;
+      color: var(--muted);
+      font-weight: 600;
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    tbody td {
+      padding: 14px 10px;
+      border-bottom: 1px solid #f0ebe6;
+      vertical-align: middle;
+    }
+
+    tbody tr:hover { background: rgba(255,255,255,0.8); }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      display: inline-block;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+      background: var(--success);
+    }
+
+    .kanban {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .kanban-col {
+      background: #faf6f2;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .kanban-col h4 {
+      margin: 0 0 12px;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .kanban-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .amount {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .subtle {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .metric-mini {
+      padding: 14px;
+      border-radius: 16px;
+      background: #fcfbfa;
+      border: 1px solid var(--line);
+    }
+
+    .metric-mini strong {
+      display: block;
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    .metric-mini span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+
+    .ai-layout {
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 16px;
+      margin-bottom: 16px;
+      align-items: start;
+    }
+
+    .ai-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .ai-kpi {
+      background: rgba(255,255,255,0.86);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(33, 24, 18, 0.04);
+    }
+
+    .ai-kpi .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .ai-kpi .value {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+
+    .ai-kpi .hint {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .advice-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .advice-card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fcfbfa;
+      transition: .2s ease;
+      cursor: pointer;
+    }
+
+    .advice-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .advice-card.active {
+      background: linear-gradient(135deg, rgba(255,107,61,0.09), rgba(255,107,61,0.03));
+      border-color: rgba(255,107,61,0.24);
+      box-shadow: 0 10px 22px rgba(255,107,61,.12);
+    }
+
+    .advice-head,
+    .advice-meta,
+    .advice-actions,
+    .detail-metric,
+    .evidence-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .advice-title {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .advice-title strong {
+      font-size: 15px;
+      display: block;
+    }
+
+    .advice-title span,
+    .advice-desc,
+    .detail-copy,
+    .evidence-subtle,
+    .record-note,
+    .empty-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .advice-desc {
+      margin: 10px 0 12px;
+      font-size: 13px;
+      color: #524943;
+    }
+
+    .advice-actions {
+      margin-top: 14px;
+    }
+
+    .advice-actions .btn {
+      padding: 9px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    .advice-chip {
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(107,114,128,0.1);
+      color: #4b5563;
+      white-space: nowrap;
+    }
+
+    .advice-chip.growth { background: rgba(22,163,74,.12); color: #15803d; }
+    .advice-chip.warning { background: rgba(245,158,11,.14); color: #b45309; }
+    .advice-chip.danger { background: rgba(239,68,68,.12); color: #b91c1c; }
+    .advice-chip.info { background: rgba(59,130,246,.12); color: #2563eb; }
+    .advice-chip.purple { background: rgba(124,58,237,.12); color: #7c3aed; }
+
+    .detail-panel,
+    .evidence-panel,
+    .record-panel {
+      background: rgba(255,255,255,0.86);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(33, 24, 18, 0.04);
+      margin-bottom: 16px;
+    }
+
+    .detail-banner {
+      border-radius: 18px;
+      padding: 16px;
+      background: linear-gradient(135deg, #2d2926, #453c36);
+      color: #fff;
+      margin-bottom: 14px;
+    }
+
+    .detail-banner .sub {
+      color: rgba(255,255,255,0.72);
+      font-size: 12px;
+      line-height: 1.7;
+      margin-top: 6px;
+    }
+
+    .detail-section-title {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 16px 0 10px;
+    }
+
+    .detail-metric {
+      padding: 10px 0;
+      border-bottom: 1px solid #f0ebe6;
+      font-size: 13px;
+    }
+
+    .detail-metric:last-child { border-bottom: 0; }
+
+    .detail-metric b {
+      font-size: 15px;
+      color: var(--text);
+    }
+
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .evidence-card {
+      background: #fcfbfa;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 14px;
+    }
+
+    .mini-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .mini-bar .bar {
+      height: 8px;
+    }
+
+    .record-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 280px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .record-item {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfbfa;
+    }
+
+    .record-item strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .record-item .meta-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .advice-hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 1480px) {
+      .stats-4 { grid-template-columns: repeat(2, 1fr); }
+      .table-map { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 1360px) {
+      .app { grid-template-columns: 220px 1fr; }
+      .rightbar { grid-column: span 2; }
+      .ops-grid, .orders-grid, .two-col, .three-col, .content-grid, .kanban, .ai-layout, .ai-kpi-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      .summary-grid, .bottom-card .stats-tabs, .stats-4, .table-map, .mini-grid, .ai-kpi-grid { grid-template-columns: 1fr; }
+      .sidebar, .main, .rightbar { border-radius: 22px; }
+      .rightbar { grid-column: auto; }
+      .kanban { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-badge">🍽</div>
+        <div>
+          <h1>RestaurantOS</h1>
+          <p>智能运营中心</p>
+        </div>
+      </div>
+
+      <div>
+        <div class="nav-section-title">Overview</div>
+        <nav class="nav" id="mainNav">
+          <a class="active" data-page="dashboard"><span class="icon">▣</span>仪表盘</a>
+          <a data-page="operations"><span class="icon">◔</span>门店运营</a>
+          <a data-page="orders"><span class="icon">🧾</span>订单中心</a>
+          <a data-page="tables"><span class="icon">☷</span>桌台管理</a>
+          <a data-page="dishes"><span class="icon">🍜</span>菜品分析</a>
+          <a data-page="ai-advice"><span class="icon">✦</span>AI 建议</a>
+        </nav>
+      </div>
+
+      <div>
+        <div class="nav-section-title">Management</div>
+        <nav class="nav">
+          <a><span class="icon">📦</span>库存采购</a>
+          <a><span class="icon">👥</span>会员营销</a>
+          <a data-page="devices"><span class="icon">📷</span>设备监控</a>
+          <a><span class="icon">⚙</span>系统设置</a>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <h3>AI 今日建议</h3>
+        <p>18:00–19:00 预计排队上升，建议提前开放 2 张备用桌，并补充肥牛库存。</p>
+        <button id="aiActionBtn">查看建议</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="userbox">
+          <div class="avatar">R</div>
+          <div class="store-meta">
+            <strong>海味小馆 · 朝阳门店</strong>
+            <span>店长视图</span>
+          </div>
+        </div>
+
+        <div class="top-meta">
+          <span id="todayText">2026-04-01 周三</span>
+          <span class="pill">05:10 AM</span>
+          <span class="pill">26°C</span>
+          <span class="pill status-open">● 营业中</span>
+          <span class="pill">🔔 3 条提醒</span>
+        </div>
+      </div>
+
+      <section class="page active" data-page="dashboard">
+        <div class="title-row">
+          <div>
+            <h2>经营仪表盘</h2>
+            <p>实时查看门店营收、客流、桌台状态与 AI 运营建议</p>
+          </div>
+          <div class="actions">
+            <button class="btn">导出日报</button>
+            <button class="btn primary">新增运营任务</button>
+          </div>
+        </div>
+
+        <section class="summary-grid">
+          <article class="metric-card orange">
+            <div class="metric-inner">
+              <div class="ring"></div>
+              <div class="metric-content">
+                <div class="metric-top">
+                  <div>
+                    <h3 id="revenueNumber">¥12,860</h3>
+                    <span>较昨日 +12.4%</span>
+                  </div>
+                  <span>今日经营额</span>
+                </div>
+                <div>
+                  <h4>门店营业额</h4>
+                  <div class="metric-sub">午市表现稳定，晚市预计继续增长</div>
+                </div>
+                <div class="metric-footer">
+                  <div class="mini-stats">
+                    <span><b>328</b> 订单</span>
+                    <span><b>214</b> 到店</span>
+                    <span><b>¥39.2</b> 客单价</span>
+                  </div>
+                  <button class="btn-white">查看详情</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="metric-card purple">
+            <div class="metric-inner">
+              <div class="ring small"></div>
+              <div class="metric-content">
+                <div class="metric-top">
+                  <div>
+                    <h3 id="liveNumber">46</h3>
+                    <span>实时更新中</span>
+                  </div>
+                  <span>门店实时状态</span>
+                </div>
+                <div>
+                  <h4>当前在店人数</h4>
+                  <div class="metric-sub">大厅 32 人，包间 14 人，晚高峰预热中</div>
+                </div>
+                <div class="metric-footer">
+                  <div class="mini-stats">
+                    <span><b>12</b> 空桌</span>
+                    <span><b>30</b> 占用</span>
+                    <span><b>4</b> 排队</span>
+                  </div>
+                  <button class="btn-white">查看桌态</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="content-grid">
+          <article class="card">
+            <div class="card-header">
+              <h3>门店实时状态</h3>
+              <div class="filters">
+                <button class="chip active">大厅 A 区</button>
+                <button class="chip">大厅 B 区</button>
+                <button class="chip">后厨</button>
+              </div>
+            </div>
+
+            <div class="live-panel">
+              <div class="play-btn">▶</div>
+              <div class="live-meta">
+                <div>
+                  <strong>晚高峰可视监测</strong>
+                  <span>当前拥挤度 78%，建议开放 2 张备用桌</span>
+                </div>
+                <button class="tiny-btn">查看详情</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card insights">
+            <div class="card-header">
+              <h3>AI 运营摘要</h3>
+              <button class="tiny-btn">刷新建议</button>
+            </div>
+
+            <ul>
+              <li><span class="dot"></span><div><strong>热销趋势</strong><br>香辣肥牛锅、手打柠檬茶、虾滑组合位列今日销量前三。</div></li>
+              <li><span class="dot warn"></span><div><strong>高峰预警</strong><br>18:00–19:00 预计排队峰值 8 桌，建议提前调整前厅排班。</div></li>
+              <li><span class="dot warn"></span><div><strong>库存提醒</strong><br>肥牛、金针菇库存低于安全阈值，建议 17:30 前完成补货确认。</div></li>
+              <li><span class="dot danger"></span><div><strong>服务异常</strong><br>7 号桌出餐耗时 26 分钟，高于门店均值，请关注后厨节拍。</div></li>
+            </ul>
+          </article>
+        </section>
+
+        <section class="card bottom-card">
+          <div class="card-header">
+            <h3>渠道经营数据</h3>
+            <div class="filters">
+              <button class="chip active">今日</button>
+              <button class="chip">近 7 天</button>
+              <button class="chip">近 30 天</button>
+            </div>
+          </div>
+
+          <div class="stats-tabs">
+            <div class="stat-block">
+              <h4>堂食</h4>
+              <div class="kpi-row"><span>订单数</span><b>186</b></div>
+              <div class="kpi-row"><span>营业额</span><b>¥7,420</b></div>
+              <div class="kpi-row"><span>客单价</span><b>¥39.9</b></div>
+              <div class="kpi-row"><span>退款数</span><b>2</b></div>
+            </div>
+            <div class="stat-block">
+              <h4>外卖</h4>
+              <div class="kpi-row"><span>订单数</span><b>104</b></div>
+              <div class="kpi-row"><span>营业额</span><b>¥3,650</b></div>
+              <div class="kpi-row"><span>客单价</span><b>¥35.1</b></div>
+              <div class="kpi-row"><span>退款数</span><b>3</b></div>
+            </div>
+            <div class="stat-block">
+              <h4>自提</h4>
+              <div class="kpi-row"><span>订单数</span><b>38</b></div>
+              <div class="kpi-row"><span>营业额</span><b>¥1,790</b></div>
+              <div class="kpi-row"><span>客单价</span><b>¥47.1</b></div>
+              <div class="kpi-row"><span>退款数</span><b>0</b></div>
+              <div class="cta-box">
+                <span>晚高峰前建议重点关注堂食翻台与外卖出餐效率</span>
+                <button>查看明细</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+
+      <section class="page" data-page="ai-advice">
+        <div class="title-row">
+          <div>
+            <h2>AI 经营建议中心</h2>
+            <p>围绕客流、桌台、菜品、库存与服务表现，输出可直接执行的经营建议</p>
+          </div>
+          <div class="actions">
+            <button class="btn">导出建议日报</button>
+            <button class="btn" id="refreshAdviceBtn">刷新建议</button>
+            <button class="btn primary" id="createTaskBtn">一键生成任务</button>
+          </div>
+        </div>
+
+        <section class="summary-grid">
+          <article class="metric-card orange">
+            <div class="metric-inner">
+              <div class="ring"></div>
+              <div class="metric-content">
+                <div class="metric-top">
+                  <div>
+                    <h3 id="adviceCount">6</h3>
+                    <span>较昨日 +2 条</span>
+                  </div>
+                  <span>今日建议数</span>
+                </div>
+                <div>
+                  <h4>待处理建议</h4>
+                  <div class="metric-sub">当前有 2 条高优先级建议需要尽快处理</div>
+                </div>
+                <div class="metric-footer">
+                  <div class="mini-stats">
+                    <span><b id="highPriorityCount">2</b> 高优先级</span>
+                    <span><b id="pendingCount">4</b> 待处理</span>
+                    <span><b id="executedCount">1</b> 已执行</span>
+                  </div>
+                  <button class="btn-white" id="focusHighPriorityBtn">聚焦高优先级</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="metric-card green">
+            <div class="metric-inner">
+              <div class="ring small"></div>
+              <div class="metric-content">
+                <div class="metric-top">
+                  <div>
+                    <h3>¥860</h3>
+                    <span>AI 预估提升</span>
+                  </div>
+                  <span>预计收益</span>
+                </div>
+                <div>
+                  <h4>今日优化空间</h4>
+                  <div class="metric-sub">重点来自桌台调度、热销菜联动加推与补货前置</div>
+                </div>
+                <div class="metric-footer">
+                  <div class="mini-stats">
+                    <span><b>+6%</b> 客单价</span>
+                    <span><b>-12%</b> 浪费率</span>
+                    <span><b>-4</b> 排队桌数</span>
+                  </div>
+                  <button class="btn-white" id="showGrowthAdviceBtn">查看收益型</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="ai-kpi-grid">
+          <article class="ai-kpi">
+            <span class="label">晚高峰预测</span>
+            <div class="value">18:00–19:00</div>
+            <div class="hint">预计客流较昨日同期提升 18%，建议提前准备备用桌与前厅引导。</div>
+          </article>
+          <article class="ai-kpi">
+            <span class="label">库存风险</span>
+            <div class="value">2 项</div>
+            <div class="hint">肥牛、金针菇接近安全阈值，若不处理可能影响热销套餐供应。</div>
+          </article>
+          <article class="ai-kpi">
+            <span class="label">服务异常</span>
+            <div class="value">1 桌</div>
+            <div class="hint">7 号桌出餐耗时已高于均值 41%，建议优先检查后厨热菜档节拍。</div>
+          </article>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <h3>建议筛选</h3>
+            <div class="filters" id="adviceFilters">
+              <button class="chip active" data-filter="all">全部</button>
+              <button class="chip" data-filter="high">高优先级</button>
+              <button class="chip" data-filter="tables">桌台</button>
+              <button class="chip" data-filter="inventory">库存</button>
+              <button class="chip" data-filter="dishes">菜品</button>
+              <button class="chip" data-filter="service">服务</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="ai-layout">
+          <article class="card">
+            <div class="card-header">
+              <h3>今日建议列表</h3>
+              <div class="filters" id="statusFilters">
+                <button class="chip active" data-status-filter="all">全部状态</button>
+                <button class="chip" data-status-filter="pending">待处理</button>
+                <button class="chip" data-status-filter="executing">执行中</button>
+                <button class="chip" data-status-filter="done">已完成</button>
+                <button class="chip" data-status-filter="ignored">已忽略</button>
+              </div>
+            </div>
+
+            <div class="advice-list" id="adviceList">
+              <div class="advice-card active"
+                data-id="reserve-tables"
+                data-title="晚高峰前开放 2 张备用桌"
+                data-time="建议 17:30 前处理"
+                data-priority="高优先级"
+                data-priority-class="danger"
+                data-type="桌台调度"
+                data-type-class="warning"
+                data-category="tables high"
+                data-status="pending"
+                data-status-label="待处理"
+                data-status-class="warn"
+                data-desc="18:00–19:00 预计排队峰值上升至 8 桌，当前可用空桌不足，建议提前整理并开放备用桌。"
+                data-reason="今日 18:00–19:00 预测客流较昨日同期上升 18%，当前桌台占用率已达 82%，空桌数不足。"
+                data-effect="预计可减少约 4 桌排队，提高翻台效率，预估增收约 ¥300。"
+                data-risk="若未提前整理桌台，高峰期顾客等待时间可能超过 15 分钟，影响到店转化。"
+                data-owner="前厅值班经理"
+                data-value="¥300"
+                data-window="18:00–19:00"
+                data-metric1-label="客流预测"
+                data-metric1-value="+18%"
+                data-metric1-width="78"
+                data-metric2-label="桌台占用率"
+                data-metric2-value="82%"
+                data-metric2-width="82"
+                data-metric2-style="blue"
+                data-metric3-label="可用空桌"
+                data-metric3-value="3 张"
+                data-metric3-width="24"
+                data-metric3-style="warning"
+              >
+                <div class="advice-head">
+                  <div class="advice-title">
+                    <strong>晚高峰前开放 2 张备用桌</strong>
+                    <span>建议 17:30 前处理</span>
+                  </div>
+                  <span class="badge danger">高优先级</span>
+                </div>
+                <p class="advice-desc">18:00–19:00 预计排队峰值上升至 8 桌，建议提前整理并开放备用桌。</p>
+                <div class="advice-meta">
+                  <span class="advice-chip warning">桌台调度</span>
+                  <span class="advice-chip info">预计减少排队 4 桌</span>
+                  <span class="advice-chip growth">预估增收 ¥300</span>
+                </div>
+                <div class="advice-actions">
+                  <button class="btn primary" data-action="execute">立即执行</button>
+                  <button class="btn" data-action="detail">查看详情</button>
+                  <button class="btn" data-action="ignore">忽略</button>
+                </div>
+              </div>
+
+              <div class="advice-card"
+                data-id="beef-stock"
+                data-title="17:30 前补充肥牛库存"
+                data-time="建议 17:20 前确认"
+                data-priority="中优先级"
+                data-priority-class="warn"
+                data-type="库存预警"
+                data-type-class="info"
+                data-category="inventory"
+                data-status="pending"
+                data-status-label="待处理"
+                data-status-class="warn"
+                data-desc="肥牛库存已低于安全阈值 18%，且晚市热销概率较高，建议优先补货或切换替代推荐。"
+                data-reason="肥牛为今日热销菜核心原料，当前库存低于安全阈值，近 3 天晚市消耗趋势持续上升。"
+                data-effect="预计可避免 1 次缺货风险，并降低热销套餐流失。"
+                data-risk="若补货延迟，晚市高峰可能出现停售或替换菜单，影响用户体验。"
+                data-owner="后厨主管 / 采购"
+                data-value="降低缺货风险"
+                data-window="17:00–20:00"
+                data-metric1-label="库存剩余"
+                data-metric1-value="18%"
+                data-metric1-width="18"
+                data-metric1-style="purple"
+                data-metric2-label="热销概率"
+                data-metric2-value="高"
+                data-metric2-width="74"
+                data-metric2-style="blue"
+                data-metric3-label="安全阈值"
+                data-metric3-value="30%"
+                data-metric3-width="30"
+                data-metric3-style="warning"
+              >
+                <div class="advice-head">
+                  <div class="advice-title">
+                    <strong>17:30 前补充肥牛库存</strong>
+                    <span>建议 17:20 前确认</span>
+                  </div>
+                  <span class="badge warn">中优先级</span>
+                </div>
+                <p class="advice-desc">肥牛库存已低于安全阈值 18%，建议优先补货或切换替代推荐。</p>
+                <div class="advice-meta">
+                  <span class="advice-chip info">库存预警</span>
+                  <span class="advice-chip purple">库存剩余 18%</span>
+                  <span class="advice-chip growth">减少缺货损失</span>
+                </div>
+                <div class="advice-actions">
+                  <button class="btn primary" data-action="execute">创建补货任务</button>
+                  <button class="btn" data-action="detail">查看详情</button>
+                  <button class="btn" data-action="ignore">忽略</button>
+                </div>
+              </div>
+
+              <div class="advice-card"
+                data-id="combo-push"
+                data-title="柠檬茶与肥牛锅做联动加推"
+                data-time="建议晚市前上线"
+                data-priority="收益型"
+                data-priority-class="success"
+                data-type="菜品策略"
+                data-type-class="growth"
+                data-category="dishes"
+                data-status="executing"
+                data-status-label="执行中"
+                data-status-class="info"
+                data-desc="近 7 天晚市组合点单率较高，建议在收银端和点餐屏突出推荐，提高客单价与加购率。"
+                data-reason="肥牛锅与手打柠檬茶组合近 7 日加购率达到 64%，晚高峰人群对套餐化推荐更敏感。"
+                data-effect="预计可拉升客单价约 6%，带来约 ¥220 增量营业额。"
+                data-risk="若物料展示不统一，推荐触达效果会下降。"
+                data-owner="收银 / 运营"
+                data-value="¥220"
+                data-window="18:00–22:00"
+                data-metric1-label="组合加购率"
+                data-metric1-value="64%"
+                data-metric1-width="64"
+                data-metric1-style="green"
+                data-metric2-label="客单价提升"
+                data-metric2-value="+6%"
+                data-metric2-width="60"
+                data-metric2-style="blue"
+                data-metric3-label="上线进度"
+                data-metric3-value="进行中"
+                data-metric3-width="58"
+                data-metric3-style="purple"
+              >
+                <div class="advice-head">
+                  <div class="advice-title">
+                    <strong>柠檬茶与肥牛锅做联动加推</strong>
+                    <span>建议晚市前上线</span>
+                  </div>
+                  <span class="badge success">收益型</span>
+                </div>
+                <p class="advice-desc">建议在点餐屏和收银端突出套餐推荐，提高加购率与客单价。</p>
+                <div class="advice-meta">
+                  <span class="advice-chip growth">菜品策略</span>
+                  <span class="advice-chip info">加购率 64%</span>
+                  <span class="advice-chip growth">预计增收 ¥220</span>
+                </div>
+                <div class="advice-actions">
+                  <button class="btn primary" data-action="execute">标记完成</button>
+                  <button class="btn" data-action="detail">查看详情</button>
+                  <button class="btn" data-action="ignore">忽略</button>
+                </div>
+              </div>
+
+              <div class="advice-card"
+                data-id="table-7-service"
+                data-title="7 号桌出餐耗时异常，请关注后厨节拍"
+                data-time="建议立即跟进"
+                data-priority="异常提醒"
+                data-priority-class="danger"
+                data-type="服务优化"
+                data-type-class="warning"
+                data-category="service high"
+                data-status="pending"
+                data-status-label="待处理"
+                data-status-class="warn"
+                data-desc="7 号桌当前出餐耗时 26 分钟，高于门店均值 41%，建议核查后厨工位与催菜流程。"
+                data-reason="热菜档当前积压较高，7 号桌等待已超门店均值，且顾客有催单记录。"
+                data-effect="可降低差评风险，并提升当班服务满意度。"
+                data-risk="若继续延迟，可能出现投诉或退单。"
+                data-owner="前厅领班 / 后厨热菜档"
+                data-value="降低差评风险"
+                data-window="立即"
+                data-metric1-label="当前出餐耗时"
+                data-metric1-value="26 分钟"
+                data-metric1-width="86"
+                data-metric1-style="warning"
+                data-metric2-label="超均值幅度"
+                data-metric2-value="+41%"
+                data-metric2-width="41"
+                data-metric2-style="blue"
+                data-metric3-label="投诉风险"
+                data-metric3-value="中高"
+                data-metric3-width="72"
+                data-metric3-style="purple"
+              >
+                <div class="advice-head">
+                  <div class="advice-title">
+                    <strong>7 号桌出餐耗时异常，请关注后厨节拍</strong>
+                    <span>建议立即跟进</span>
+                  </div>
+                  <span class="badge danger">异常提醒</span>
+                </div>
+                <p class="advice-desc">7 号桌当前出餐耗时 26 分钟，高于门店均值 41%，建议立即跟进。</p>
+                <div class="advice-meta">
+                  <span class="advice-chip warning">服务优化</span>
+                  <span class="advice-chip danger">投诉风险提升</span>
+                  <span class="advice-chip info">耗时 26 分钟</span>
+                </div>
+                <div class="advice-actions">
+                  <button class="btn primary" data-action="execute">通知后厨</button>
+                  <button class="btn" data-action="detail">查看详情</button>
+                  <button class="btn" data-action="ignore">忽略</button>
+                </div>
+              </div>
+
+              <div class="advice-card"
+                data-id="staffing-shift"
+                data-title="晚高峰前厅增加 1 名引导人员"
+                data-time="建议 17:40 前调度"
+                data-priority="中优先级"
+                data-priority-class="warn"
+                data-type="排班优化"
+                data-type-class="info"
+                data-category="service"
+                data-status="done"
+                data-status-label="已完成"
+                data-status-class="success"
+                data-desc="预计 18:00–19:00 入店顾客集中增加，建议在前厅增加 1 名引导人员，降低排队混乱。"
+                data-reason="过去 5 日同时间段前厅接待压力偏高，迎宾与带位动作存在拥堵。"
+                data-effect="可提升进店接待效率，缩短高峰时段首轮等待。"
+                data-risk="若不增加引导，顾客排队感知会明显变差。"
+                data-owner="店长"
+                data-value="提升接待效率"
+                data-window="18:00–19:00"
+                data-metric1-label="到店波峰"
+                data-metric1-value="高"
+                data-metric1-width="80"
+                data-metric1-style="blue"
+                data-metric2-label="执行状态"
+                data-metric2-value="已完成"
+                data-metric2-width="100"
+                data-metric2-style="green"
+                data-metric3-label="等待感知"
+                data-metric3-value="可下降"
+                data-metric3-width="68"
+                data-metric3-style="purple"
+              >
+                <div class="advice-head">
+                  <div class="advice-title">
+                    <strong>晚高峰前厅增加 1 名引导人员</strong>
+                    <span>建议 17:40 前调度</span>
+                  </div>
+                  <span class="badge warn">中优先级</span>
+                </div>
+                <p class="advice-desc">建议在前厅增加 1 名引导人员，降低晚高峰排队混乱与带位压力。</p>
+                <div class="advice-meta">
+                  <span class="advice-chip info">排班优化</span>
+                  <span class="advice-chip growth">提升接待效率</span>
+                  <span class="advice-chip info">已处理</span>
+                </div>
+                <div class="advice-actions">
+                  <button class="btn primary" data-action="detail">查看复盘</button>
+                  <button class="btn" data-action="detail">查看详情</button>
+                  <button class="btn" data-action="ignore">忽略</button>
+                </div>
+              </div>
+
+              <div class="advice-card"
+                data-id="dessert-promo"
+                data-title="午后甜品促销建议延后处理"
+                data-time="建议次日复查"
+                data-priority="低优先级"
+                data-priority-class="gray"
+                data-type="营销建议"
+                data-type-class="purple"
+                data-category="dishes"
+                data-status="ignored"
+                data-status-label="已忽略"
+                data-status-class="gray"
+                data-desc="当前营业阶段以晚市接待为主，午后甜品促销建议可延后至次日处理。"
+                data-reason="该建议适配午后闲时，对当前晚市节奏帮助有限。"
+                data-effect="避免分散当前运营注意力。"
+                data-risk="无明显风险。"
+                data-owner="运营"
+                data-value="低"
+                data-window="次日"
+                data-metric1-label="当前适配度"
+                data-metric1-value="低"
+                data-metric1-width="22"
+                data-metric1-style="purple"
+                data-metric2-label="优先顺位"
+                data-metric2-value="靠后"
+                data-metric2-width="28"
+                data-metric2-style="blue"
+                data-metric3-label="执行必要性"
+                data-metric3-value="低"
+                data-metric3-width="20"
+                data-metric3-style="green"
+              >
+                <div class="advice-head">
+                  <div class="advice-title">
+                    <strong>午后甜品促销建议延后处理</strong>
+                    <span>建议次日复查</span>
+                  </div>
+                  <span class="badge gray">低优先级</span>
+                </div>
+                <p class="advice-desc">当前营业阶段以晚市接待为主，午后甜品促销建议可延后处理。</p>
+                <div class="advice-meta">
+                  <span class="advice-chip purple">营销建议</span>
+                  <span class="advice-chip info">当前不适用</span>
+                  <span class="advice-chip warning">可次日复查</span>
+                </div>
+                <div class="advice-actions">
+                  <button class="btn primary" data-action="detail">查看详情</button>
+                  <button class="btn" data-action="detail">查看依据</button>
+                  <button class="btn" data-action="ignore">保持忽略</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <aside>
+            <section class="detail-panel">
+              <div class="panel-header">
+                <h4>建议详情</h4>
+                <button class="tiny-btn" id="jumpSelectedBtn">定位到卡片</button>
+              </div>
+
+              <div class="detail-banner">
+                <strong id="detailTitle">晚高峰前开放 2 张备用桌</strong>
+                <div class="sub" id="detailTime">建议 17:30 前处理</div>
+              </div>
+
+              <div class="advice-meta">
+                <span class="badge danger" id="detailPriority">高优先级</span>
+                <span class="advice-chip warning" id="detailType">桌台调度</span>
+                <span class="badge warn" id="detailStatus">待处理</span>
+              </div>
+
+              <div class="detail-section-title">建议说明</div>
+              <div class="detail-copy" id="detailDesc">18:00–19:00 预计排队峰值上升至 8 桌，当前可用空桌不足，建议提前整理并开放备用桌。</div>
+
+              <div class="detail-section-title">触发原因</div>
+              <div class="detail-copy" id="detailReason">今日 18:00–19:00 预测客流较昨日同期上升 18%，当前桌台占用率已达 82%，空桌数不足。</div>
+
+              <div class="detail-section-title">预估效果</div>
+              <div class="detail-copy" id="detailEffect">预计可减少约 4 桌排队，提高翻台效率，预估增收约 ¥300。</div>
+
+              <div class="detail-section-title">风险提示</div>
+              <div class="detail-copy" id="detailRisk">若未提前整理桌台，高峰期顾客等待时间可能超过 15 分钟，影响到店转化。</div>
+
+              <div class="detail-section-title">执行信息</div>
+              <div class="detail-metric"><span>建议负责人</span><b id="detailOwner">前厅值班经理</b></div>
+              <div class="detail-metric"><span>重点时段</span><b id="detailWindow">18:00–19:00</b></div>
+              <div class="detail-metric"><span>预估收益 / 价值</span><b id="detailValue">¥300</b></div>
+
+              <div class="cta-box">
+                <span id="detailActionText">已选中建议：桌台调度策略</span>
+                <button id="detailExecuteBtn">立即执行</button>
+              </div>
+            </section>
+
+            <section class="evidence-panel">
+              <div class="panel-header">
+                <h4>建议依据</h4>
+                <button class="tiny-btn">查看历史</button>
+              </div>
+
+              <div class="evidence-grid">
+                <div class="evidence-card">
+                  <div class="evidence-row">
+                    <strong id="metric1Label">客流预测</strong>
+                    <span class="evidence-subtle" id="metric1Value">+18%</span>
+                  </div>
+                  <div class="mini-bars">
+                    <div class="mini-bar">
+                      <div class="bar"><span id="metric1Bar" style="width: 78%;"></span></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="evidence-card">
+                  <div class="evidence-row">
+                    <strong id="metric2Label">桌台占用率</strong>
+                    <span class="evidence-subtle" id="metric2Value">82%</span>
+                  </div>
+                  <div class="mini-bars">
+                    <div class="mini-bar">
+                      <div class="bar blue"><span id="metric2Bar" style="width: 82%;"></span></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="evidence-card">
+                  <div class="evidence-row">
+                    <strong id="metric3Label">可用空桌</strong>
+                    <span class="evidence-subtle" id="metric3Value">3 张</span>
+                  </div>
+                  <div class="mini-bars">
+                    <div class="mini-bar">
+                      <div class="bar" id="metric3BarWrap"><span id="metric3Bar" style="width: 24%;"></span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="record-panel">
+              <div class="panel-header">
+                <h4>执行记录</h4>
+                <button class="tiny-btn" id="clearRecordBtn">清空本页记录</button>
+              </div>
+              <div class="record-list" id="adviceRecordList">
+                <div class="record-item">
+                  <div class="meta-line"><strong>已执行：开放备用桌 2 张</strong><span class="badge success">已完成</span></div>
+                  <div class="record-note">17:22 · 执行人：店长 · 预计缓解晚高峰排队压力</div>
+                </div>
+                <div class="record-item">
+                  <div class="meta-line"><strong>已创建补货任务：肥牛</strong><span class="badge info">执行中</span></div>
+                  <div class="record-note">17:25 · 已通知后厨与采购跟进</div>
+                </div>
+                <div class="record-item">
+                  <div class="meta-line"><strong>已忽略：午后甜品促销建议</strong><span class="badge gray">已忽略</span></div>
+                  <div class="record-note">原因：当前时段不适用，转为次日复查</div>
+                </div>
+              </div>
+            </section>
+          </aside>
+        </section>
+
+        <section class="card bottom-card">
+          <div class="card-header">
+            <h3>AI 建议效果反馈</h3>
+            <div class="filters">
+              <button class="chip active">今日</button>
+              <button class="chip">近 7 天</button>
+              <button class="chip">近 30 天</button>
+            </div>
+          </div>
+
+          <div class="stats-4">
+            <div class="stat-block">
+              <h4>建议采纳率</h4>
+              <div class="kpi-row"><span>已采纳</span><b>68%</b></div>
+              <div class="subtle">最近 7 天建议采纳率稳定提升</div>
+            </div>
+            <div class="stat-block">
+              <h4>执行完成率</h4>
+              <div class="kpi-row"><span>已完成</span><b>83%</b></div>
+              <div class="subtle">大部分建议可在当日营业周期内闭环</div>
+            </div>
+            <div class="stat-block">
+              <h4>收益贡献</h4>
+              <div class="kpi-row"><span>累计增收</span><b>¥3,260</b></div>
+              <div class="subtle">主要来自桌台优化与套餐加推</div>
+            </div>
+            <div class="stat-block">
+              <h4>建议准确率</h4>
+              <div class="kpi-row"><span>本周评估</span><b>79%</b></div>
+              <div class="subtle">可结合门店反馈继续优化模型</div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="page" data-page="operations">
+        <div class="title-row">
+          <div>
+            <h2>门店运营</h2>
+            <p>聚焦桌台状态、排队管理、人员排班与出餐效率</p>
+          </div>
+          <div class="actions">
+            <button class="btn">导出排班</button>
+            <button class="btn primary">新增临时调度</button>
+          </div>
+        </div>
+
+        <section class="summary-grid">
+          <article class="metric-card green">
+            <div class="metric-inner">
+              <div class="ring"></div>
+              <div class="metric-content">
+                <div class="metric-top">
+                  <div>
+                    <h3>42</h3>
+                    <span>实时桌态</span>
+                  </div>
+                  <span>桌台总数</span>
+                </div>
+                <div>
+                  <h4>桌台使用情况</h4>
+                  <div class="metric-sub">占用 30，空闲 8，待清台 2，预定 2</div>
+                </div>
+                <div class="metric-footer">
+                  <div class="mini-stats">
+                    <span><b>71%</b> 利用率</span>
+                    <span><b>18 分钟</b> 平均翻台</span>
+                  </div>
+                  <button class="btn-white">桌态详情</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="metric-card blue">
+            <div class="metric-inner">
+              <div class="ring small"></div>
+              <div class="metric-content">
+                <div class="metric-top">
+                  <div>
+                    <h3>8</h3>
+                    <span>当前排队组数</span>
+                  </div>
+                  <span>等位状态</span>
+                </div>
+                <div>
+                  <h4>平均等位 16 分钟</h4>
+                  <div class="metric-sub">建议开放大厅 B 区 2 张双人桌缓解高峰</div>
+                </div>
+                <div class="metric-footer">
+                  <div class="mini-stats">
+                    <span><b>3</b> 组 2 人</span>
+                    <span><b>4</b> 组 4 人</span>
+                    <span><b>1</b> 组 6 人</span>
+                  </div>
+                  <button class="btn-white">排队详情</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="ops-grid">
+          <article class="card">
+            <div class="card-header">
+              <h3>桌台分布图</h3>
+              <div class="filters">
+                <button class="chip active">大厅 A</button>
+                <button class="chip">大厅 B</button>
+                <button class="chip">包间</button>
+              </div>
+            </div>
+            <div class="table-map">
+              <div class="table-card busy"><div class="meta-line"><strong>1 号桌</strong><span class="badge danger">占用中</span></div><span>4 人桌 · 已用餐 38 分钟</span></div>
+              <div class="table-card waiting"><div class="meta-line"><strong>2 号桌</strong><span class="badge warn">待上菜</span></div><span>2 人桌 · 菜品准备中</span></div>
+              <div class="table-card free"><div class="meta-line"><strong>3 号桌</strong><span class="badge success">空闲</span></div><span>2 人桌 · 可立即接待</span></div>
+              <div class="table-card cleaning"><div class="meta-line"><strong>4 号桌</strong><span class="badge gray">待清台</span></div><span>4 人桌 · 刚结账</span></div>
+              <div class="table-card busy"><div class="meta-line"><strong>5 号桌</strong><span class="badge danger">占用中</span></div><span>6 人桌 · 包间</span></div>
+              <div class="table-card busy"><div class="meta-line"><strong>6 号桌</strong><span class="badge info">已预定</span></div><span>19:00 到店 · 4 人</span></div>
+              <div class="table-card free"><div class="meta-line"><strong>7 号桌</strong><span class="badge success">空闲</span></div><span>2 人桌 · 已清洁完成</span></div>
+              <div class="table-card waiting"><div class="meta-line"><strong>8 号桌</strong><span class="badge warn">催菜</span></div><span>4 人桌 · 等待 21 分钟</span></div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
+              <h3>运营效率</h3>
+              <button class="tiny-btn">查看时段趋势</button>
+            </div>
+            <div class="progress-group">
+              <div class="progress-row">
+                <div class="progress-top"><span>出餐准时率</span><strong>88%</strong></div>
+                <div class="bar green"><span style="width:88%"></span></div>
+              </div>
+              <div class="progress-row">
+                <div class="progress-top"><span>翻台效率</span><strong>74%</strong></div>
+                <div class="bar"><span style="width:74%"></span></div>
+              </div>
+              <div class="progress-row">
+                <div class="progress-top"><span>前厅响应速度</span><strong>81%</strong></div>
+                <div class="bar blue"><span style="width:81%"></span></div>
+              </div>
+              <div class="progress-row">
+                <div class="progress-top"><span>后厨负载</span><strong>69%</strong></div>
+                <div class="bar purple"><span style="width:69%"></span></div>
+              </div>
+            </div>
+            <div class="cta-box" style="margin-top:18px;">
+              <span>7 号桌与 8 号桌存在出餐异常，建议优先协调后厨与传菜岗位。</span>
+              <button>立即处理</button>
+            </div>
+          </article>
+        </section>
+
+        <section class="two-col">
+          <article class="card">
+            <div class="card-header">
+              <h3>当前排队列表</h3>
+              <button class="tiny-btn">叫号设置</button>
+            </div>
+            <div class="tasks">
+              <div class="queue-card"><div class="meta-line"><strong>A012</strong><span class="badge warn">等待 18 分钟</span></div><span>4 人 · 偏好大厅 · 可安排 4 人桌</span></div>
+              <div class="queue-card"><div class="meta-line"><strong>A013</strong><span class="badge info">等待 11 分钟</span></div><span>2 人 · 可安排吧台或 2 人桌</span></div>
+              <div class="queue-card"><div class="meta-line"><strong>A014</strong><span class="badge warn">等待 16 分钟</span></div><span>6 人 · 需包间或拼桌方案</span></div>
+              <div class="queue-card"><div class="meta-line"><strong>A015</strong><span class="badge info">等待 6 分钟</span></div><span>2 人 · 已短信提醒</span></div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
+              <h3>员工排班与岗位</h3>
+              <button class="tiny-btn">排班管理</button>
+            </div>
+            <div class="tasks">
+              <div class="staff-item"><div class="meta-line"><strong>前厅 · 李晓</strong><span class="badge success">在岗</span></div><span>当前负责 1-8 号桌，响应评级 4.9</span></div>
+              <div class="staff-item"><div class="meta-line"><strong>后厨 · 王强</strong><span class="badge success">在岗</span></div><span>热菜档，当前负载偏高</span></div>
+              <div class="staff-item"><div class="meta-line"><strong>传菜 · 小周</strong><span class="badge info">忙碌</span></div><span>近 15 分钟完成 12 次传菜</span></div>
+              <div class="staff-item"><div class="meta-line"><strong>收银 · 小陈</strong><span class="badge gray">待轮换</span></div><span>20:00 后可支援前厅结账高峰</span></div>
+            </div>
+          </article>
+        </section>
+      </section>
+
+      <section class="page" data-page="orders">
+        <div class="title-row">
+          <div>
+            <h2>订单中心</h2>
+            <p>统一查看堂食、外卖、自提订单状态与异常处理</p>
+          </div>
+          <div class="actions">
+            <button class="btn">导出订单</button>
+            <button class="btn primary">手动录入订单</button>
+          </div>
+        </div>
+
+        <section class="summary-grid">
+          <article class="metric-card orange">
+            <div class="metric-inner">
+              <div class="ring"></div>
+              <div class="metric-content">
+                <div class="metric-top">
+                  <div>
+                    <h3>328</h3>
+                    <span>订单总量</span>
+                  </div>
+                  <span>今日订单</span>
+                </div>
+                <div>
+                  <h4>订单处理状态</h4>
+                  <div class="metric-sub">待处理 12，制作中 26，配送中 18，已完成 272</div>
+                </div>
+                <div class="metric-footer">
+                  <div class="mini-stats">
+                    <span><b>14</b> 异常</span>
+                    <span><b>5</b> 催单</span>
+                    <span><b>3</b> 退款</span>
+                  </div>
+                  <button class="btn-white">查看订单流</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="metric-card purple">
+            <div class="metric-inner">
+              <div class="ring small"></div>
+              <div class="metric-content">
+                <div class="metric-top">
+                  <div>
+                    <h3>¥39.2</h3>
+                    <span>平均客单价</span>
+                  </div>
+                  <span>订单价值</span>
+                </div>
+                <div>
+                  <h4>渠道占比</h4>
+                  <div class="metric-sub">堂食 56.7%，外卖 31.7%，自提 11.6%</div>
+                </div>
+                <div class="metric-footer">
+                  <div class="mini-stats">
+                    <span><b>¥12,860</b> 总收入</span>
+                    <span><b>92%</b> 履约率</span>
+                  </div>
+                  <button class="btn-white">渠道分析</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="orders-grid">
+          <article class="card">
+            <div class="card-header">
+              <h3>订单列表</h3>
+              <div class="filters">
+                <button class="chip active">全部</button>
+                <button class="chip">堂食</button>
+                <button class="chip">外卖</button>
+                <button class="chip">自提</button>
+              </div>
+            </div>
+            <div style="overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>订单号</th>
+                    <th>渠道</th>
+                    <th>桌号/用户</th>
+                    <th>金额</th>
+                    <th>状态</th>
+                    <th>时间</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>#A1023</td><td>堂食</td><td>3 号桌</td><td>¥168</td><td><span class="badge warn">待出餐</span></td><td>17:26</td></tr>
+                  <tr><td>#W2048</td><td>外卖</td><td>美团用户</td><td>¥86</td><td><span class="badge info">配送中</span></td><td>17:21</td></tr>
+                  <tr><td>#P3021</td><td>自提</td><td>张先生</td><td>¥52</td><td><span class="badge success">待取餐</span></td><td>17:18</td></tr>
+                  <tr><td>#A1020</td><td>堂食</td><td>8 号桌</td><td>¥236</td><td><span class="badge danger">催单</span></td><td>17:11</td></tr>
+                  <tr><td>#W2041</td><td>外卖</td><td>饿了么用户</td><td>¥74</td><td><span class="badge success">已完成</span></td><td>16:58</td></tr>
+                  <tr><td>#A1014</td><td>堂食</td><td>6 号桌</td><td>¥318</td><td><span class="badge gray">已结账</span></td><td>16:42</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
+              <h3>订单看板</h3>
+              <button class="tiny-btn">自动刷新</button>
+            </div>
+            <div class="kanban">
+              <div class="kanban-col">
+                <h4>待处理 <span class="badge warn">12</span></h4>
+                <div class="kanban-stack">
+                  <div class="kanban-card"><div class="meta-line"><strong>#A1023</strong><span class="badge warn">堂食</span></div><span>3 号桌 · 2 荤 3 素菜</span></div>
+                  <div class="kanban-card"><div class="meta-line"><strong>#W2050</strong><span class="badge info">外卖</span></div><span>平台订单 · 预计 18 分钟内送达</span></div>
+                </div>
+              </div>
+              <div class="kanban-col">
+                <h4>制作中 <span class="badge info">26</span></h4>
+                <div class="kanban-stack">
+                  <div class="kanban-card"><div class="meta-line"><strong>#A1020</strong><span class="badge danger">催单</span></div><span>8 号桌 · 已等待 21 分钟</span></div>
+                  <div class="kanban-card"><div class="meta-line"><strong>#P3021</strong><span class="badge success">自提</span></div><span>顾客 10 分钟后到店</span></div>
+                </div>
+              </div>
+              <div class="kanban-col">
+                <h4>履约中 <span class="badge success">18</span></h4>
+                <div class="kanban-stack">
+                  <div class="kanban-card"><div class="meta-line"><strong>#W2048</strong><span class="badge info">配送中</span></div><span>骑手已取餐 · 预计 8 分钟送达</span></div>
+                  <div class="kanban-card"><div class="meta-line"><strong>#A1019</strong><span class="badge gray">已完成</span></div><span>2 号桌 · 已结账待清台</span></div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="two-col">
+          <article class="card">
+            <div class="card-header">
+              <h3>订单指标</h3>
+              <button class="tiny-btn">查看趋势</button>
+            </div>
+            <div class="mini-grid">
+              <div class="metric-mini"><strong>14</strong><span>异常订单</span></div>
+              <div class="metric-mini"><strong>5</strong><span>催单数量</span></div>
+              <div class="metric-mini"><strong>3</strong><span>退款申请</span></div>
+              <div class="metric-mini"><strong>92%</strong><span>履约成功率</span></div>
+            </div>
+            <div class="progress-group" style="margin-top:18px;">
+              <div class="progress-row">
+                <div class="progress-top"><span>堂食履约</span><strong>95%</strong></div>
+                <div class="bar green"><span style="width:95%"></span></div>
+              </div>
+              <div class="progress-row">
+                <div class="progress-top"><span>外卖履约</span><strong>87%</strong></div>
+                <div class="bar blue"><span style="width:87%"></span></div>
+              </div>
+              <div class="progress-row">
+                <div class="progress-top"><span>自提履约</span><strong>93%</strong></div>
+                <div class="bar purple"><span style="width:93%"></span></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="card insights">
+            <div class="card-header">
+              <h3>异常处理建议</h3>
+              <button class="tiny-btn">一键派单</button>
+            </div>
+            <ul>
+              <li><span class="dot danger"></span><div><strong>#A1020 催单升级</strong><br>建议优先协调后厨热菜档，并由前厅主动沟通顾客预期等待时间。</div></li>
+              <li><span class="dot warn"></span><div><strong>#W2050 预计超时</strong><br>建议改派近距离骑手或提前标注延迟说明，降低差评风险。</div></li>
+              <li><span class="dot info"></span><div><strong>退款原因集中</strong><br>近 3 单退款与漏配饮品相关，建议检查打包复核流程。</div></li>
+            </ul>
+          </article>
+        </section>
+      </section>
+
+      <section class="page" data-page="tables">
+        <div class="title-row">
+          <div>
+            <h2>桌台管理</h2>
+            <p>统一查看桌台占用、预订、排队、清台与翻台效率</p>
+          </div>
+          <div class="actions">
+            <button class="btn">导出桌态</button>
+            <button class="btn primary">新增预订</button>
+          </div>
+        </div>
+
+        <section class="summary-grid">
+          <article class="metric-card orange">
+            <div class="metric-inner">
+              <div class="ring"></div>
+              <div class="metric-content">
+                <div class="metric-top">
+                  <div>
+                    <h3>42</h3>
+                    <span>全店桌台总数</span>
+                  </div>
+                  <span>桌台总览</span>
+                </div>
+                <div>
+                  <h4>当前占用率 76%</h4>
+                  <div class="metric-sub">占用 32，空闲 6，清台中 2，预订锁定 2</div>
+                </div>
+                <div class="metric-footer">
+                  <div class="mini-stats">
+                    <span><b>19 分钟</b> 平均翻台</span>
+                    <span><b>5</b> 桌待清台</span>
+                  </div>
+                  <button class="btn-white">查看布局</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="metric-card blue">
+            <div class="metric-inner">
+              <div class="ring small"></div>
+              <div class="metric-content">
+                <div class="metric-top">
+                  <div>
+                    <h3>9</h3>
+                    <span>当前候位组数</span>
+                  </div>
+                  <span>排队与预订</span>
+                </div>
+                <div>
+                  <h4>预计等待 14 分钟</h4>
+                  <div class="metric-sub">双人桌最紧张，建议优先释放 A 区靠窗桌位</div>
+                </div>
+                <div class="metric-footer">
+                  <div class="mini-stats">
+                    <span><b>6</b> 组到店候位</span>
+                    <span><b>3</b> 单预约即将到店</span>
+                  </div>
+                  <button class="btn-white">查看队列</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="ops-grid">
+          <article class="card">
+            <div class="card-header">
+              <h3>桌台分布总览</h3>
+              <div class="filters">
+                <button class="chip active">全店</button>
+                <button class="chip">大厅 A 区</button>
+                <button class="chip">包间</button>
+              </div>
+            </div>
+            <div class="table-map">
+              <div class="table-card busy"><div class="meta-line"><strong>T01</strong><span class="badge danger">用餐中</span></div><span>4 人桌 · 已入座 38 分钟</span></div>
+              <div class="table-card busy"><div class="meta-line"><strong>T02</strong><span class="badge warn">待上菜</span></div><span>2 人桌 · 催菜风险</span></div>
+              <div class="table-card free"><div class="meta-line"><strong>T03</strong><span class="badge success">空闲</span></div><span>2 人桌 · 可立即安排</span></div>
+              <div class="table-card cleaning"><div class="meta-line"><strong>T04</strong><span class="badge gray">清台中</span></div><span>预计 3 分钟恢复</span></div>
+              <div class="table-card waiting"><div class="meta-line"><strong>T05</strong><span class="badge info">预订</span></div><span>18:30 到店 · 生日聚餐</span></div>
+              <div class="table-card busy"><div class="meta-line"><strong>T06</strong><span class="badge danger">满座</span></div><span>6 人桌 · 包间使用中</span></div>
+              <div class="table-card free"><div class="meta-line"><strong>T07</strong><span class="badge success">空闲</span></div><span>4 人桌 · 靠窗区域</span></div>
+              <div class="table-card waiting"><div class="meta-line"><strong>T08</strong><span class="badge warn">待清台</span></div><span>顾客刚离店 · 需补餐具</span></div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
+              <h3>清台与翻台效率</h3>
+              <button class="tiny-btn">实时刷新</button>
+            </div>
+            <div class="progress-group">
+              <div class="progress-row">
+                <div class="progress-top"><span>大厅 A 区翻台完成率</span><strong>84%</strong></div>
+                <div class="bar"><span style="width:84%"></span></div>
+              </div>
+              <div class="progress-row">
+                <div class="progress-top"><span>大厅 B 区翻台完成率</span><strong>76%</strong></div>
+                <div class="bar blue"><span style="width:76%"></span></div>
+              </div>
+              <div class="progress-row">
+                <div class="progress-top"><span>包间清洁合格率</span><strong>92%</strong></div>
+                <div class="bar green"><span style="width:92%"></span></div>
+              </div>
+              <div class="progress-row">
+                <div class="progress-top"><span>预订准时到座率</span><strong>88%</strong></div>
+                <div class="bar purple"><span style="width:88%"></span></div>
+              </div>
+            </div>
+            <div class="cta-box" style="margin-top:18px;">
+              <span>AI 建议：优先安排 2 人候位至 T03、T07，能将排队时间再压缩约 4 分钟。</span>
+              <button>执行调度</button>
+            </div>
+          </article>
+        </section>
+
+        <section class="two-col">
+          <article class="card">
+            <div class="card-header">
+              <h3>候位与预订队列</h3>
+              <button class="tiny-btn">叫号设置</button>
+            </div>
+            <div class="tasks">
+              <div class="queue-card"><div class="meta-line"><strong>Q018</strong><span class="badge warn">等待 18 分钟</span></div><span>4 人 · 偏好大厅 B 区</span></div>
+              <div class="queue-card"><div class="meta-line"><strong>Q019</strong><span class="badge info">等待 11 分钟</span></div><span>2 人 · 已发送即将入座提醒</span></div>
+              <div class="queue-card"><div class="meta-line"><strong>R102</strong><span class="badge success">18:30 预订</span></div><span>6 人生日餐 · 需儿童座椅 1 张</span></div>
+              <div class="queue-card"><div class="meta-line"><strong>R103</strong><span class="badge gray">19:00 预订</span></div><span>商务接待 · 需安静包间</span></div>
+            </div>
+          </article>
+
+          <article class="card insights">
+            <div class="card-header">
+              <h3>桌台运营建议</h3>
+              <button class="tiny-btn">生成报告</button>
+            </div>
+            <ul>
+              <li><span class="dot warn"></span><div><strong>双人桌紧缺</strong><br>未来 30 分钟双人桌需求高于供给，建议将 1 张四人桌临时拆分为双桌组合。</div></li>
+              <li><span class="dot"></span><div><strong>翻台节奏健康</strong><br>本时段平均翻台 19 分钟，优于昨日同期 2 分钟。</div></li>
+              <li><span class="dot danger"></span><div><strong>T02 催菜风险</strong><br>2 号桌等待时长偏高，建议优先协调后厨并安排服务补偿。</div></li>
+            </ul>
+          </article>
+        </section>
+      </section>
+
+      <section class="page" data-page="dishes">
+        <div class="title-row">
+          <div>
+            <h2>菜品分析</h2>
+            <p>查看菜品销量、毛利、口味反馈、售罄风险与推荐组合</p>
+          </div>
+          <div class="actions">
+            <button class="btn">导出菜品报表</button>
+            <button class="btn primary">更新菜单策略</button>
+          </div>
+        </div>
+
+        <section class="summary-grid">
+          <article class="metric-card purple">
+            <div class="metric-inner">
+              <div class="ring"></div>
+              <div class="metric-content">
+                <div class="metric-top">
+                  <div>
+                    <h3>TOP 1</h3>
+                    <span>今日爆款</span>
+                  </div>
+                  <span>销量冠军</span>
+                </div>
+                <div>
+                  <h4>香辣肥牛锅</h4>
+                  <div class="metric-sub">今日售出 86 份，较昨日同期 +18%</div>
+                </div>
+                <div class="metric-footer">
+                  <div class="mini-stats">
+                    <span><b>¥4,128</b> 销售额</span>
+                    <span><b>67%</b> 毛利率</span>
+                  </div>
+                  <button class="btn-white">查看详情</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="metric-card green">
+            <div class="metric-inner">
+              <div class="ring small"></div>
+              <div class="metric-content">
+                <div class="metric-top">
+                  <div>
+                    <h3>12</h3>
+                    <span>重点关注菜品</span>
+                  </div>
+                  <span>菜单健康度</span>
+                </div>
+                <div>
+                  <h4>3 款售罄风险，2 款滞销</h4>
+                  <div class="metric-sub">建议优化备货与推荐位，降低库存和浪费压力</div>
+                </div>
+                <div class="metric-footer">
+                  <div class="mini-stats">
+                    <span><b>4.7</b> 综合评分</span>
+                    <span><b>2</b> 款差评集中</span>
+                  </div>
+                  <button class="btn-white">查看菜单</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="orders-grid">
+          <article class="card">
+            <div class="card-header">
+              <h3>菜品表现排行</h3>
+              <div class="filters">
+                <button class="chip active">销量</button>
+                <button class="chip">毛利</button>
+                <button class="chip">好评率</button>
+              </div>
+            </div>
+            <div style="overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>菜品</th>
+                    <th>分类</th>
+                    <th>销量</th>
+                    <th>销售额</th>
+                    <th>毛利率</th>
+                    <th>评价</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>香辣肥牛锅</td><td>锅底</td><td>86</td><td>¥4,128</td><td>67%</td><td><span class="badge success">4.9</span></td></tr>
+                  <tr><td>虾滑双拼</td><td>招牌菜</td><td>74</td><td>¥3,552</td><td>63%</td><td><span class="badge success">4.8</span></td></tr>
+                  <tr><td>手打柠檬茶</td><td>饮品</td><td>69</td><td>¥1,725</td><td>71%</td><td><span class="badge info">4.7</span></td></tr>
+                  <tr><td>菌菇拼盘</td><td>素菜</td><td>28</td><td>¥896</td><td>54%</td><td><span class="badge warn">4.4</span></td></tr>
+                  <tr><td>黑糖糍粑</td><td>甜品</td><td>16</td><td>¥432</td><td>49%</td><td><span class="badge gray">4.3</span></td></tr>
+                  <tr><td>青梅冰粉</td><td>甜品</td><td>9</td><td>¥198</td><td>42%</td><td><span class="badge danger">4.0</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
+              <h3>分类经营表现</h3>
+              <button class="tiny-btn">查看趋势</button>
+            </div>
+            <div class="progress-group">
+              <div class="progress-row">
+                <div class="progress-top"><span>锅底类贡献</span><strong>38%</strong></div>
+                <div class="bar"><span style="width:38%"></span></div>
+              </div>
+              <div class="progress-row">
+                <div class="progress-top"><span>招牌菜贡献</span><strong>27%</strong></div>
+                <div class="bar purple"><span style="width:27%"></span></div>
+              </div>
+              <div class="progress-row">
+                <div class="progress-top"><span>饮品加购率</span><strong>41%</strong></div>
+                <div class="bar blue"><span style="width:41%"></span></div>
+              </div>
+              <div class="progress-row">
+                <div class="progress-top"><span>甜品转化率</span><strong>16%</strong></div>
+                <div class="bar green"><span style="width:16%"></span></div>
+              </div>
+            </div>
+            <div class="mini-grid" style="margin-top:18px;">
+              <div class="metric-mini"><strong>3</strong><span>售罄预警</span></div>
+              <div class="metric-mini"><strong>2</strong><span>滞销菜品</span></div>
+              <div class="metric-mini"><strong>41%</strong><span>加饮转化</span></div>
+              <div class="metric-mini"><strong>¥6.8</strong><span>人均加购额</span></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="two-col">
+          <article class="card insights">
+            <div class="card-header">
+              <h3>AI 菜品策略建议</h3>
+              <button class="tiny-btn">应用推荐</button>
+            </div>
+            <ul>
+              <li><span class="dot"></span><div><strong>爆款组合推荐</strong><br>将“香辣肥牛锅 + 虾滑双拼 + 手打柠檬茶”设为首页套餐位，预计可提升客单价 8% 左右。</div></li>
+              <li><span class="dot warn"></span><div><strong>甜品转化偏低</strong><br>建议在结账页弹出“黑糖糍粑半价加购”，提升甜品曝光。</div></li>
+              <li><span class="dot danger"></span><div><strong>差评集中项</strong><br>青梅冰粉近期反馈偏甜且出品不稳定，建议调整糖度标准并复训后厨。</div></li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
+              <h3>库存与售罄风险</h3>
+              <button class="tiny-btn">同步采购</button>
+            </div>
+            <div class="tasks">
+              <div class="task-item"><div class="task-top"><strong>肥牛卷</strong><span class="badge danger">高风险</span></div><p>预计 2.5 小时后低于安全库存，建议立即确认晚市补货。</p></div>
+              <div class="task-item"><div class="task-top"><strong>鲜虾滑</strong><span class="badge warn">关注</span></div><p>当前余量仅够支撑 22 单，若晚高峰提前到来可能售罄。</p></div>
+              <div class="task-item"><div class="task-top"><strong>青梅冰粉</strong><span class="badge gray">滞销</span></div><p>库存周转偏慢，建议降低备货或改为套餐附赠测试转化。</p></div>
+            </div>
+          </article>
+        </section>
+      </section>
+
+      <section class="page" data-page="devices">
+        <div class="title-row">
+          <div>
+            <h2>设备监控</h2>
+            <p>统一监控摄像头、POS、打印机、后厨屏、网络与识别服务状态</p>
+          </div>
+          <div class="actions">
+            <button class="btn">导出巡检</button>
+            <button class="btn primary">新增告警规则</button>
+          </div>
+        </div>
+
+        <section class="summary-grid">
+          <article class="metric-card blue">
+            <div class="metric-inner">
+              <div class="ring"></div>
+              <div class="metric-content">
+                <div class="metric-top">
+                  <div>
+                    <h3>24</h3>
+                    <span>在线设备</span>
+                  </div>
+                  <span>设备在线率</span>
+                </div>
+                <div>
+                  <h4>92% 设备正常</h4>
+                  <div class="metric-sub">摄像头、后厨屏、打印机与 POS 大部分在线</div>
+                </div>
+                <div class="metric-footer">
+                  <div class="mini-stats">
+                    <span><b>2</b> 离线</span>
+                    <span><b>3</b> 告警</span>
+                  </div>
+                  <button class="btn-white">查看拓扑</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="metric-card orange">
+            <div class="metric-inner">
+              <div class="ring small"></div>
+              <div class="metric-content">
+                <div class="metric-top">
+                  <div>
+                    <h3>68ms</h3>
+                    <span>平均响应延迟</span>
+                  </div>
+                  <span>系统性能</span>
+                </div>
+                <div>
+                  <h4>识别服务运行稳定</h4>
+                  <div class="metric-sub">当前客流模型、桌态模型、订单同步任务均在线</div>
+                </div>
+                <div class="metric-footer">
+                  <div class="mini-stats">
+                    <span><b>74%</b> 存储占用</span>
+                    <span><b>99.2%</b> 今日可用率</span>
+                  </div>
+                  <button class="btn-white">服务详情</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="orders-grid">
+          <article class="card">
+            <div class="card-header">
+              <h3>设备状态列表</h3>
+              <div class="filters">
+                <button class="chip active">全部</button>
+                <button class="chip">摄像头</button>
+                <button class="chip">收银设备</button>
+                <button class="chip">厨房设备</button>
+              </div>
+            </div>
+            <div style="overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>设备</th>
+                    <th>位置</th>
+                    <th>类型</th>
+                    <th>状态</th>
+                    <th>最近心跳</th>
+                    <th>备注</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>CAM-01</td><td>大厅入口</td><td>摄像头</td><td><span class="badge success">在线</span></td><td>刚刚</td><td>客流识别中</td></tr>
+                  <tr><td>CAM-04</td><td>后厨出菜口</td><td>摄像头</td><td><span class="badge warn">波动</span></td><td>12 秒前</td><td>偶发丢帧</td></tr>
+                  <tr><td>POS-02</td><td>收银台</td><td>POS</td><td><span class="badge success">在线</span></td><td>刚刚</td><td>订单同步正常</td></tr>
+                  <tr><td>PRN-01</td><td>后厨热菜档</td><td>打印机</td><td><span class="badge danger">离线</span></td><td>4 分钟前</td><td>待重启检查</td></tr>
+                  <tr><td>KDS-03</td><td>冷菜档</td><td>后厨屏</td><td><span class="badge info">在线</span></td><td>3 秒前</td><td>显示正常</td></tr>
+                  <tr><td>RTR-01</td><td>弱电间</td><td>路由器</td><td><span class="badge success">在线</span></td><td>刚刚</td><td>网络稳定</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
+              <h3>监控任务与资源</h3>
+              <button class="tiny-btn">巡检面板</button>
+            </div>
+            <div class="progress-group">
+              <div class="progress-row">
+                <div class="progress-top"><span>客流识别任务负载</span><strong>61%</strong></div>
+                <div class="bar blue"><span style="width:61%"></span></div>
+              </div>
+              <div class="progress-row">
+                <div class="progress-top"><span>桌态识别任务负载</span><strong>58%</strong></div>
+                <div class="bar purple"><span style="width:58%"></span></div>
+              </div>
+              <div class="progress-row">
+                <div class="progress-top"><span>本地存储使用率</span><strong>74%</strong></div>
+                <div class="bar"><span style="width:74%"></span></div>
+              </div>
+              <div class="progress-row">
+                <div class="progress-top"><span>网络带宽占用</span><strong>46%</strong></div>
+                <div class="bar green"><span style="width:46%"></span></div>
+              </div>
+            </div>
+            <div class="mini-grid" style="margin-top:18px;">
+              <div class="metric-mini"><strong>3</strong><span>今日告警</span></div>
+              <div class="metric-mini"><strong>1</strong><span>需人工处理</span></div>
+              <div class="metric-mini"><strong>99.2%</strong><span>服务可用率</span></div>
+              <div class="metric-mini"><strong>12</strong><span>自动恢复次数</span></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="two-col">
+          <article class="card insights">
+            <div class="card-header">
+              <h3>异常与维护建议</h3>
+              <button class="tiny-btn">生成工单</button>
+            </div>
+            <ul>
+              <li><span class="dot danger"></span><div><strong>PRN-01 打印机离线</strong><br>建议先检查电源与网口连接，再执行远程重启，避免晚高峰出单失败。</div></li>
+              <li><span class="dot warn"></span><div><strong>CAM-04 丢帧</strong><br>后厨出菜口摄像头偶发丢帧，可能影响出菜识别准确率，建议检查网络与镜头遮挡。</div></li>
+              <li><span class="dot"></span><div><strong>模型服务健康</strong><br>视觉识别与订单同步总体稳定，可在闭店后安排版本升级窗口。</div></li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
+              <h3>维护计划</h3>
+              <button class="tiny-btn">查看历史</button>
+            </div>
+            <div class="tasks">
+              <div class="task-item"><div class="task-top"><strong>19:30 网络巡检</strong><span class="badge info">计划中</span></div><p>检查入口摄像头与收银台交换机链路，确认晚高峰带宽充足。</p></div>
+              <div class="task-item"><div class="task-top"><strong>22:10 存储清理</strong><span class="badge gray">自动</span></div><p>系统将自动归档当天监控截图与日志，释放本地空间。</p></div>
+              <div class="task-item"><div class="task-top"><strong>闭店后版本升级</strong><span class="badge warn">待确认</span></div><p>识别模型 v2.3 可在闭店后灰度升级，预计耗时 8 分钟。</p></div>
+            </div>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <aside class="rightbar">
+      <h3>运营动态</h3>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h4>实时动态</h4>
+          <button class="tiny-btn">查看全部</button>
+        </div>
+        <div class="feed" id="activityFeed">
+          <div class="feed-item">
+            <div class="meta-line"><strong>新订单 #A1023</strong><span class="badge success">新订单</span></div>
+            <span>2 分钟前 · 堂食 · 3 人桌</span>
+          </div>
+          <div class="feed-item">
+            <div class="meta-line"><strong>8 号桌加菜</strong><span class="badge info">服务中</span></div>
+            <span>5 分钟前 · 增加虾滑、毛肚各 1 份</span>
+          </div>
+          <div class="feed-item">
+            <div class="meta-line"><strong>外卖订单催单</strong><span class="badge warn">催单</span></div>
+            <span>9 分钟前 · 美团渠道 · 预计超时 4 分钟</span>
+          </div>
+          <div class="feed-item">
+            <div class="meta-line"><strong>7 号桌出餐偏慢</strong><span class="badge danger">异常</span></div>
+            <span>11 分钟前 · 当前已等待 26 分钟</span>
+          </div>
+          <div class="feed-item">
+            <div class="meta-line"><strong>顾客完成结账</strong><span class="badge info">翻台</span></div>
+            <span>15 分钟前 · 2 号桌释放，可重新接待</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h4>自动任务与告警</h4>
+          <button class="tiny-btn">任务配置</button>
+        </div>
+        <div class="tasks">
+          <div class="task-item">
+            <div class="task-top"><strong>低库存提醒</strong><span class="badge warn">17:30</span></div>
+            <p>肥牛、金针菇接近安全库存阈值，建议立即检查库房并发起采购提醒。</p>
+          </div>
+          <div class="task-item">
+            <div class="task-top"><strong>闭店巡检</strong><span class="badge info">22:00</span></div>
+            <p>系统将在闭店前自动生成巡检清单，并提醒确认燃气、空调与监控状态。</p>
+          </div>
+          <div class="task-item">
+            <div class="task-top"><strong>差评预警跟进</strong><span class="badge danger">待处理</span></div>
+            <p>平台出现 1 条潜在差评风险订单，建议店长在 30 分钟内进行回访。</p>
+          </div>
+          <div class="task-item">
+            <div class="task-top"><strong>模型识别任务</strong><span class="badge success">运行中</span></div>
+            <p>客流识别与桌位状态分析正常运行，下一次摘要更新时间为 5 分钟后。</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer-note">Restaurant Dashboard Mockup · Dashboard / AI 建议 / 门店运营 / 订单中心 / 桌台管理 / 菜品分析 / 设备监控</div>
+    </aside>
+  </div>
+
+  <script>
+    const todayText = document.getElementById('todayText');
+    const now = new Date();
+    const weekMap = ['周日','周一','周二','周三','周四','周五','周六'];
+    const formatted = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${weekMap[now.getDay()]}`;
+    todayText.textContent = formatted;
+
+    const aiActionBtn = document.getElementById('aiActionBtn');
+    const activityFeed = document.getElementById('activityFeed');
+    const navLinks = document.querySelectorAll('a[data-page]');
+    const pages = document.querySelectorAll('.page');
+    const adviceList = document.getElementById('adviceList');
+    const adviceCards = Array.from(document.querySelectorAll('.advice-card'));
+    const adviceRecordList = document.getElementById('adviceRecordList');
+    const adviceCount = document.getElementById('adviceCount');
+    const highPriorityCount = document.getElementById('highPriorityCount');
+    const pendingCount = document.getElementById('pendingCount');
+    const executedCount = document.getElementById('executedCount');
+
+    const detailTitle = document.getElementById('detailTitle');
+    const detailTime = document.getElementById('detailTime');
+    const detailPriority = document.getElementById('detailPriority');
+    const detailType = document.getElementById('detailType');
+    const detailStatus = document.getElementById('detailStatus');
+    const detailDesc = document.getElementById('detailDesc');
+    const detailReason = document.getElementById('detailReason');
+    const detailEffect = document.getElementById('detailEffect');
+    const detailRisk = document.getElementById('detailRisk');
+    const detailOwner = document.getElementById('detailOwner');
+    const detailWindow = document.getElementById('detailWindow');
+    const detailValue = document.getElementById('detailValue');
+    const detailActionText = document.getElementById('detailActionText');
+    const detailExecuteBtn = document.getElementById('detailExecuteBtn');
+    const metric1Label = document.getElementById('metric1Label');
+    const metric1Value = document.getElementById('metric1Value');
+    const metric1Bar = document.getElementById('metric1Bar');
+    const metric2Label = document.getElementById('metric2Label');
+    const metric2Value = document.getElementById('metric2Value');
+    const metric2Bar = document.getElementById('metric2Bar');
+    const metric3Label = document.getElementById('metric3Label');
+    const metric3Value = document.getElementById('metric3Value');
+    const metric3Bar = document.getElementById('metric3Bar');
+    const metric3BarWrap = document.getElementById('metric3BarWrap');
+    const refreshAdviceBtn = document.getElementById('refreshAdviceBtn');
+    const createTaskBtn = document.getElementById('createTaskBtn');
+    const focusHighPriorityBtn = document.getElementById('focusHighPriorityBtn');
+    const showGrowthAdviceBtn = document.getElementById('showGrowthAdviceBtn');
+    const jumpSelectedBtn = document.getElementById('jumpSelectedBtn');
+    const clearRecordBtn = document.getElementById('clearRecordBtn');
+
+    let selectedAdviceId = adviceCards[0]?.dataset.id || '';
+    let currentCategoryFilter = 'all';
+    let currentStatusFilter = 'all';
+
+    function showPage(page) {
+      navLinks.forEach(item => item.classList.toggle('active', item.dataset.page === page));
+      pages.forEach(item => item.classList.toggle('active', item.dataset.page === page));
+    }
+
+    aiActionBtn.addEventListener('click', () => {
+      showPage('ai-advice');
+    });
+
+    function setBarStyle(wrapper, styleName) {
+      wrapper.className = 'bar';
+      if (styleName === 'blue') wrapper.classList.add('blue');
+      if (styleName === 'green') wrapper.classList.add('green');
+      if (styleName === 'purple') wrapper.classList.add('purple');
+    }
+
+    function populateDetail(card) {
+      if (!card) return;
+      selectedAdviceId = card.dataset.id;
+      adviceCards.forEach(item => item.classList.remove('active'));
+      card.classList.add('active');
+      detailTitle.textContent = card.dataset.title || '';
+      detailTime.textContent = card.dataset.time || '';
+      detailPriority.textContent = card.dataset.priority || '';
+      detailPriority.className = `badge ${card.dataset.priorityClass || 'gray'}`;
+      detailType.textContent = card.dataset.type || '';
+      detailType.className = `advice-chip ${card.dataset.typeClass || 'info'}`;
+      detailStatus.textContent = card.dataset.statusLabel || '';
+      detailStatus.className = `badge ${card.dataset.statusClass || 'gray'}`;
+      detailDesc.textContent = card.dataset.desc || '';
+      detailReason.textContent = card.dataset.reason || '';
+      detailEffect.textContent = card.dataset.effect || '';
+      detailRisk.textContent = card.dataset.risk || '';
+      detailOwner.textContent = card.dataset.owner || '';
+      detailWindow.textContent = card.dataset.window || '';
+      detailValue.textContent = card.dataset.value || '';
+      detailActionText.textContent = `已选中建议：${card.dataset.type || ''}`;
+      metric1Label.textContent = card.dataset.metric1Label || '';
+      metric1Value.textContent = card.dataset.metric1Value || '';
+      metric1Bar.style.width = `${card.dataset.metric1Width || 0}%`;
+      metric2Label.textContent = card.dataset.metric2Label || '';
+      metric2Value.textContent = card.dataset.metric2Value || '';
+      metric2Bar.style.width = `${card.dataset.metric2Width || 0}%`;
+      setBarStyle(metric3BarWrap, card.dataset.metric3Style || '');
+      metric3Label.textContent = card.dataset.metric3Label || '';
+      metric3Value.textContent = card.dataset.metric3Value || '';
+      metric3Bar.style.width = `${card.dataset.metric3Width || 0}%`;
+      detailExecuteBtn.textContent = card.dataset.status === 'done' ? '查看复盘' : (card.dataset.status === 'ignored' ? '恢复建议' : '立即执行');
+    }
+
+    function updateSummary() {
+      const visibleCards = adviceCards.filter(card => !card.classList.contains('advice-hidden'));
+      adviceCount.textContent = adviceCards.length;
+      highPriorityCount.textContent = adviceCards.filter(card => (card.dataset.category || '').includes('high')).length;
+      pendingCount.textContent = adviceCards.filter(card => card.dataset.status === 'pending').length;
+      executedCount.textContent = adviceCards.filter(card => card.dataset.status === 'done').length;
+      if (!visibleCards.length && adviceList) {
+        let emptyNode = document.getElementById('adviceEmptyNode');
+        if (!emptyNode) {
+          emptyNode = document.createElement('div');
+          emptyNode.id = 'adviceEmptyNode';
+          emptyNode.className = 'empty-note';
+          emptyNode.textContent = '当前筛选条件下暂无建议，请切换分类或状态。';
+          adviceList.appendChild(emptyNode);
+        }
+      } else {
+        const emptyNode = document.getElementById('adviceEmptyNode');
+        if (emptyNode) emptyNode.remove();
+      }
+    }
+
+    function applyAdviceFilters() {
+      adviceCards.forEach(card => {
+        const categories = (card.dataset.category || '').split(/\s+/).filter(Boolean);
+        const categoryMatch = currentCategoryFilter === 'all' || categories.includes(currentCategoryFilter);
+        const statusMatch = currentStatusFilter === 'all' || card.dataset.status === currentStatusFilter;
+        card.classList.toggle('advice-hidden', !(categoryMatch && statusMatch));
+      });
+      const firstVisible = adviceCards.find(card => !card.classList.contains('advice-hidden'));
+      if (firstVisible) populateDetail(firstVisible);
+      updateSummary();
+    }
+
+    function appendRecord(title, statusClass, statusLabel, note) {
+      if (!adviceRecordList) return;
+      const node = document.createElement('div');
+      node.className = 'record-item';
+      node.innerHTML = `<div class="meta-line"><strong>${title}</strong><span class="badge ${statusClass}">${statusLabel}</span></div><div class="record-note">${note}</div>`;
+      adviceRecordList.prepend(node);
+      while (adviceRecordList.children.length > 8) {
+        adviceRecordList.removeChild(adviceRecordList.lastElementChild);
+      }
+    }
+
+    function executeAdvice(card) {
+      if (!card) return;
+      const alreadyDone = card.dataset.status === 'done';
+      const ignored = card.dataset.status === 'ignored';
+      if (ignored) {
+        card.dataset.status = 'pending';
+        card.dataset.statusLabel = '待处理';
+        card.dataset.statusClass = 'warn';
+        appendRecord(`已恢复：${card.dataset.title}`, 'info', '已恢复', '建议已恢复至待处理列表，可继续执行。');
+      } else if (alreadyDone) {
+        appendRecord(`查看复盘：${card.dataset.title}`, 'success', '复盘', '该建议已完成，可结合数据继续优化。');
+      } else {
+        card.dataset.status = 'done';
+        card.dataset.statusLabel = '已完成';
+        card.dataset.statusClass = 'success';
+        appendRecord(`已执行：${card.dataset.title}`, 'success', '已完成', `执行负责人：${card.dataset.owner || '店长'} · 已按建议完成处理。`);
+      }
+      populateDetail(card);
+      applyAdviceFilters();
+    }
+
+    function ignoreAdvice(card) {
+      if (!card) return;
+      card.dataset.status = 'ignored';
+      card.dataset.statusLabel = '已忽略';
+      card.dataset.statusClass = 'gray';
+      appendRecord(`已忽略：${card.dataset.title}`, 'gray', '已忽略', '该建议已暂缓处理，可在后续重新恢复。');
+      populateDetail(card);
+      applyAdviceFilters();
+    }
+
+    adviceCards.forEach(card => {
+      card.addEventListener('click', event => {
+        if (event.target.closest('button')) return;
+        populateDetail(card);
+      });
+      card.querySelectorAll('button').forEach(button => {
+        button.addEventListener('click', event => {
+          event.stopPropagation();
+          const action = button.dataset.action;
+          if (action === 'detail') {
+            populateDetail(card);
+            return;
+          }
+          if (action === 'execute') {
+            executeAdvice(card);
+            return;
+          }
+          if (action === 'ignore') {
+            ignoreAdvice(card);
+          }
+        });
+      });
+    });
+
+    document.querySelectorAll('#adviceFilters .chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('#adviceFilters .chip').forEach(item => item.classList.remove('active'));
+        chip.classList.add('active');
+        currentCategoryFilter = chip.dataset.filter || 'all';
+        applyAdviceFilters();
+      });
+    });
+
+    document.querySelectorAll('#statusFilters .chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('#statusFilters .chip').forEach(item => item.classList.remove('active'));
+        chip.classList.add('active');
+        currentStatusFilter = chip.dataset.statusFilter || 'all';
+        applyAdviceFilters();
+      });
+    });
+
+    refreshAdviceBtn?.addEventListener('click', () => {
+      appendRecord('AI 建议已刷新', 'info', '刷新', '系统已重新计算客流、库存与服务数据，建议结果已更新。');
+    });
+
+    createTaskBtn?.addEventListener('click', () => {
+      appendRecord('已生成运营任务包', 'success', '已创建', '已为高优先级建议生成今日任务清单。');
+    });
+
+    focusHighPriorityBtn?.addEventListener('click', () => {
+      currentCategoryFilter = 'high';
+      document.querySelectorAll('#adviceFilters .chip').forEach(item => item.classList.toggle('active', item.dataset.filter === 'high'));
+      applyAdviceFilters();
+      showPage('ai-advice');
+    });
+
+    showGrowthAdviceBtn?.addEventListener('click', () => {
+      currentCategoryFilter = 'dishes';
+      document.querySelectorAll('#adviceFilters .chip').forEach(item => item.classList.toggle('active', item.dataset.filter === 'dishes'));
+      applyAdviceFilters();
+      showPage('ai-advice');
+    });
+
+    jumpSelectedBtn?.addEventListener('click', () => {
+      const target = adviceCards.find(card => card.dataset.id === selectedAdviceId);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    detailExecuteBtn?.addEventListener('click', () => {
+      const target = adviceCards.find(card => card.dataset.id === selectedAdviceId);
+      executeAdvice(target);
+    });
+
+    clearRecordBtn?.addEventListener('click', () => {
+      if (adviceRecordList) {
+        adviceRecordList.innerHTML = '<div class="empty-note">本页执行记录已清空，你可以继续操作建议卡生成新的记录。</div>';
+      }
+    });
+
+    populateDetail(adviceCards[0]);
+    applyAdviceFilters();
+
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        const page = link.dataset.page;
+        showPage(page);
+      });
+    });
+
+    const extraEvents = [
+      { title: '新会员注册', tag: 'success', label: '会员', desc: '刚刚 · 小程序渠道新增会员 1 人' },
+      { title: '后厨备餐完成', tag: 'info', label: '备餐', desc: '刚刚 · 外卖订单 #W204 已完成装袋' },
+      { title: '桌位状态更新', tag: 'info', label: '桌台', desc: '刚刚 · 5 号桌已清台，可再次接待' }
+    ];
+
+    let idx = 0;
+    setInterval(() => {
+      const item = extraEvents[idx % extraEvents.length];
+      const node = document.createElement('div');
+      node.className = 'feed-item';
+      node.innerHTML = `
+        <div class="meta-line"><strong>${item.title}</strong><span class="badge ${item.tag}">${item.label}</span></div>
+        <span>${item.desc}</span>
+      `;
+      activityFeed.prepend(node);
+      if (activityFeed.children.length > 8) {
+        activityFeed.removeChild(activityFeed.lastElementChild);
+      }
+      idx++;
+    }, 5500);
+
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const parent = chip.parentElement;
+        parent.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

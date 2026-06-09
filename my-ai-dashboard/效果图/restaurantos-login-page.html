@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RestaurantOS 登录页</title>
+  <style>
+    :root {
+      --bg: #f6f3f0;
+      --bg-2: #f3efeb;
+      --panel: rgba(255,255,255,0.72);
+      --panel-solid: #ffffff;
+      --line: #e8e1db;
+      --text: #2c2724;
+      --muted: #7d746d;
+      --accent: #ff6b3d;
+      --accent-2: #ff8f63;
+      --accent-soft: rgba(255,107,61,0.10);
+      --purple: #8b5cf6;
+      --success: #16a34a;
+      --shadow: 0 18px 48px rgba(48, 37, 28, 0.10);
+      --radius-xl: 30px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 8% 12%, rgba(255, 173, 126, 0.22), transparent 22%),
+        radial-gradient(circle at 92% 8%, rgba(168, 85, 247, 0.18), transparent 24%),
+        radial-gradient(circle at 48% 92%, rgba(255, 219, 184, 0.35), transparent 25%),
+        linear-gradient(180deg, #f8f5f2 0%, #f3efeb 100%);
+      overflow-x: hidden;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1.12fr 0.88fr;
+      gap: 22px;
+      padding: 22px;
+      position: relative;
+    }
+
+    .panel {
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255,255,255,0.72);
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100vh - 44px);
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp .65s ease both;
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(30px);
+      opacity: .45;
+      pointer-events: none;
+    }
+
+    .hero::before {
+      width: 240px;
+      height: 240px;
+      background: rgba(255, 122, 65, 0.26);
+      top: -40px;
+      left: -30px;
+    }
+
+    .hero::after {
+      width: 280px;
+      height: 280px;
+      background: rgba(168, 85, 247, 0.18);
+      bottom: -80px;
+      right: -60px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--line);
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, var(--accent), #ff9a62);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 24px;
+      box-shadow: 0 10px 24px rgba(255, 107, 61, 0.28);
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -.03em;
+    }
+
+    .brand-subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .brand-status {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.85);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .hero-main {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 18px;
+      flex: 1;
+      padding-top: 22px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .hero-banner {
+      padding: 28px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, #2e2926, #463d37);
+      color: white;
+      min-height: 390px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 18px 42px rgba(28, 22, 18, 0.18);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-banner::before {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      top: -60px;
+      right: -40px;
+    }
+
+    .hero-banner::after {
+      content: "";
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      bottom: -40px;
+      right: 60px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-size: 12px;
+      color: rgba(255,255,255,0.84);
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-title {
+      margin: 18px 0 0;
+      font-size: 48px;
+      line-height: 1.14;
+      letter-spacing: -.04em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-desc {
+      margin: 18px 0 0;
+      max-width: 680px;
+      color: rgba(255,255,255,0.74);
+      font-size: 15px;
+      line-height: 1.9;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-stat {
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.10);
+      backdrop-filter: blur(4px);
+    }
+
+    .hero-stat .label {
+      color: rgba(255,255,255,0.58);
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+
+    .hero-stat .value {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -.03em;
+    }
+
+    .hero-stat .hint {
+      margin-top: 6px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.60);
+    }
+
+    .hero-side {
+      display: grid;
+      gap: 18px;
+      align-content: start;
+      min-width: 0;
+    }
+
+    .mini-card {
+      padding: 20px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.88);
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 28px rgba(33, 24, 18, 0.05);
+    }
+
+    .mini-card h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .mini-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .module-item {
+      padding: 14px;
+      border-radius: 16px;
+      background: #faf7f4;
+      border: 1px solid #eee5de;
+      font-size: 13px;
+      font-weight: 600;
+      color: #524943;
+      transition: .2s ease;
+    }
+
+    .module-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(48, 37, 28, 0.08);
+    }
+
+    .tips-list {
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 12px;
+    }
+
+    .tips-list li {
+      display: flex;
+      gap: 10px;
+      color: #5c524b;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-top: 8px;
+    }
+
+    .login-wrap {
+      display: flex;
+      align-items: center;
+      animation: fadeUp .72s ease .08s both;
+    }
+
+    .login-card {
+      width: 100%;
+      padding: 28px;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255,255,255,0.72);
+      background: rgba(255,255,255,0.78);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-card::before {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 999px;
+      background: rgba(255, 107, 61, 0.12);
+      top: -50px;
+      right: -30px;
+      filter: blur(14px);
+      pointer-events: none;
+    }
+
+    .login-head {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 26px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-title {
+      margin: 0;
+      font-size: 36px;
+      letter-spacing: -.03em;
+    }
+
+    .login-subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .notify-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 18px;
+      background: #fff9f6;
+      border: 1px solid #f5ddd2;
+      color: #b05b37;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .role-switch {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .role-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #5a514a;
+      border-radius: 16px;
+      padding: 13px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .role-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(48,37,28,0.06);
+    }
+
+    .role-btn.active {
+      border-color: rgba(255,107,61,0.24);
+      background: linear-gradient(135deg, rgba(255,107,61,0.10), rgba(255,107,61,0.03));
+      color: #a03a1b;
+    }
+
+    form {
+      position: relative;
+      z-index: 1;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #4c433d;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input {
+      width: 100%;
+      height: 56px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 0 16px;
+      outline: none;
+      font-size: 14px;
+      transition: .2s ease;
+      color: var(--text);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    }
+
+    .input:focus {
+      border-color: #f2a587;
+      box-shadow: 0 0 0 4px rgba(255,107,61,0.10);
+    }
+
+    .input.password {
+      padding-right: 56px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 14px;
+      transform: translateY(-50%);
+      width: 34px;
+      height: 34px;
+      border: 0;
+      background: #f8f3ef;
+      border-radius: 12px;
+      cursor: pointer;
+      color: #7d746d;
+      transition: .2s ease;
+      display: grid;
+      place-items: center;
+    }
+
+    .toggle-password:hover {
+      background: #f2ebe6;
+      color: #463d37;
+    }
+
+    .form-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    .remember {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #6e655f;
+      font-size: 13px;
+      user-select: none;
+      cursor: pointer;
+    }
+
+    .remember input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+    }
+
+    .link-btn {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 0;
+    }
+
+    .link-btn:hover {
+      text-decoration: underline;
+    }
+
+    .submit-btn {
+      width: 100%;
+      height: 58px;
+      border: 0;
+      border-radius: 18px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 12px 26px rgba(255,107,61,0.24);
+      transition: .2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 30px rgba(255,107,61,0.28);
+    }
+
+    .submit-btn:disabled {
+      cursor: not-allowed;
+      opacity: .7;
+      transform: none;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0;
+      color: #b3a8a0;
+      font-size: 12px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .quick-entry {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .quick-btn {
+      height: 48px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      color: #5a514a;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .quick-btn:hover {
+      background: #fcfaf8;
+      transform: translateY(-1px);
+    }
+
+    .demo-box {
+      margin-top: 22px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, #2e2926, #443b34);
+      color: white;
+      padding: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .demo-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .demo-title {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .demo-tag {
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      color: rgba(255,255,255,0.76);
+      font-size: 11px;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .demo-item {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .demo-item .k {
+      font-size: 12px;
+      color: rgba(255,255,255,0.56);
+      margin-bottom: 6px;
+    }
+
+    .demo-item .v {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+    }
+
+    .message {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      font-size: 13px;
+      line-height: 1.7;
+      display: none;
+      border: 1px solid transparent;
+    }
+
+    .message.show {
+      display: block;
+      animation: fadeUp .25s ease;
+    }
+
+    .message.success {
+      background: rgba(22,163,74,0.08);
+      color: #166534;
+      border-color: rgba(22,163,74,0.14);
+    }
+
+    .message.error {
+      background: rgba(239,68,68,0.08);
+      color: #b91c1c;
+      border-color: rgba(239,68,68,0.14);
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: #9a8f87;
+      font-size: 12px;
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 1320px) {
+      .page {
+        grid-template-columns: 1fr;
+      }
+      .hero {
+        min-height: auto;
+      }
+      .hero-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .page {
+        padding: 14px;
+        gap: 14px;
+      }
+      .hero, .login-card {
+        padding: 18px;
+      }
+      .brand {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .hero-title {
+        font-size: 34px;
+      }
+      .hero-stats,
+      .role-switch,
+      .quick-entry,
+      .demo-grid,
+      .module-grid {
+        grid-template-columns: 1fr;
+      }
+      .login-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .brand-title {
+        font-size: 24px;
+      }
+      .login-title {
+        font-size: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="panel hero">
+      <header class="brand">
+        <div class="brand-left">
+          <div class="brand-badge">🍽</div>
+          <div>
+            <h1 class="brand-title">RestaurantOS</h1>
+            <p class="brand-subtitle">智能运营中心 · 登录入口</p>
+          </div>
+        </div>
+        <div class="brand-status" id="greeting">正在同步今日门店状态</div>
+      </header>
+
+      <div class="hero-main">
+        <div class="hero-copy">
+          <div class="hero-banner">
+            <div>
+              <div class="eyebrow">✨ 与你当前 Restaurant 项目后台风格统一</div>
+              <h2 class="hero-title">
+                登录后快速进入经营仪表盘，
+                <br />
+                统一查看门店、订单与 AI 建议。
+              </h2>
+              <p class="hero-desc">
+                这是一版为你的 restaurant 项目单独设计的登录页，延续你现有后台的暖米色底、
+                橙色品牌强调、大圆角卡片和轻玻璃质感，适合直接作为独立登录页面接入。
+              </p>
+            </div>
+
+            <div class="hero-stats">
+              <div class="hero-stat">
+                <div class="label">今日营业额</div>
+                <div class="value">¥12,860</div>
+                <div class="hint">较昨日 +12.4%</div>
+              </div>
+              <div class="hero-stat">
+                <div class="label">在店人数</div>
+                <div class="value">46</div>
+                <div class="hint">大厅 32 / 包间 14</div>
+              </div>
+              <div class="hero-stat">
+                <div class="label">门店状态</div>
+                <div class="value">营业中</div>
+                <div class="hint">3 条提醒待处理</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-side">
+          <div class="mini-card">
+            <h3>登录后可进入模块</h3>
+            <p>与你当前后台菜单结构保持一致，方便后续直接接真实接口与权限控制。</p>
+            <div class="module-grid">
+              <div class="module-item">经营仪表盘</div>
+              <div class="module-item">门店运营</div>
+              <div class="module-item">订单中心</div>
+              <div class="module-item">桌台管理</div>
+              <div class="module-item">菜品分析</div>
+              <div class="module-item">AI 建议</div>
+            </div>
+          </div>
+
+          <div class="mini-card">
+            <h3>页面适配说明</h3>
+            <p>当前文件为纯前端静态演示版，可先直接预览，再替换成你的真实登录逻辑。</p>
+            <ul class="tips-list">
+              <li><span class="dot"></span><span>已内置账号输入、密码显隐、角色切换、记住我、模拟登录反馈。</span></li>
+              <li><span class="dot"></span><span>后续可把登录按钮接到 <strong>/api/v1/auth/login</strong>。</span></li>
+              <li><span class="dot"></span><span>登录成功后可跳转到你的 dashboard 页面。</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="login-wrap">
+      <div class="login-card panel-solid">
+        <div class="login-head">
+          <div>
+            <h2 class="login-title">欢迎登录</h2>
+            <p class="login-subtitle">请输入账号信息，进入 RestaurantOS 智能运营中心</p>
+          </div>
+          <div class="notify-pill">🔔 当前有 3 条运营提醒</div>
+        </div>
+
+        <div class="role-switch" id="roleSwitch">
+          <button class="role-btn active" type="button" data-role="管理员">管理员</button>
+          <button class="role-btn" type="button" data-role="门店经理">门店经理</button>
+          <button class="role-btn" type="button" data-role="运营人员">运营人员</button>
+        </div>
+
+        <form id="loginForm">
+          <div class="field">
+            <label for="account">账号</label>
+            <div class="input-wrap">
+              <input
+                id="account"
+                class="input"
+                type="text"
+                placeholder="请输入账号 / 用户名 / 邮箱"
+                value="admin"
+                autocomplete="username"
+              />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="password">密码</label>
+            <div class="input-wrap">
+              <input
+                id="password"
+                class="input password"
+                type="password"
+                placeholder="请输入登录密码"
+                value="123456"
+                autocomplete="current-password"
+              />
+              <button type="button" class="toggle-password" id="togglePassword" aria-label="切换密码显示">👁</button>
+            </div>
+          </div>
+
+          <div class="form-meta">
+            <label class="remember">
+              <input type="checkbox" id="remember" checked />
+              <span>记住我</span>
+            </label>
+            <button class="link-btn" type="button" id="forgotBtn">忘记密码？</button>
+          </div>
+
+          <button class="submit-btn" id="submitBtn" type="submit">
+            <span id="submitText">进入 RestaurantOS</span>
+            <span>→</span>
+          </button>
+
+          <div id="message" class="message"></div>
+        </form>
+
+        <div class="divider">快捷入口</div>
+
+        <div class="quick-entry">
+          <button class="quick-btn" type="button" data-fill="admin">使用管理员演示账号</button>
+          <button class="quick-btn" type="button" data-fill="manager">使用经理演示账号</button>
+        </div>
+
+        <div class="demo-box">
+          <div class="demo-top">
+            <h3 class="demo-title">演示账号</h3>
+            <span class="demo-tag">Demo</span>
+          </div>
+
+          <div class="demo-grid">
+            <div class="demo-item">
+              <div class="k">管理员账号</div>
+              <div class="v">admin</div>
+            </div>
+            <div class="demo-item">
+              <div class="k">管理员密码</div>
+              <div class="v">123456</div>
+            </div>
+            <div class="demo-item">
+              <div class="k">经理账号</div>
+              <div class="v">manager01</div>
+            </div>
+            <div class="demo-item">
+              <div class="k">经理密码</div>
+              <div class="v">123456</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-note">
+          当前为静态演示登录页。你后续只需要把提交逻辑替换成真实接口请求，
+          再在成功后跳转到你的仪表盘即可。
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const greetingEl = document.getElementById("greeting");
+    const roleSwitch = document.getElementById("roleSwitch");
+    const roleButtons = roleSwitch.querySelectorAll(".role-btn");
+    const togglePasswordBtn = document.getElementById("togglePassword");
+    const passwordInput = document.getElementById("password");
+    const accountInput = document.getElementById("account");
+    const rememberInput = document.getElementById("remember");
+    const loginForm = document.getElementById("loginForm");
+    const messageEl = document.getElementById("message");
+    const submitBtn = document.getElementById("submitBtn");
+    const submitText = document.getElementById("submitText");
+    const fillButtons = document.querySelectorAll(".quick-btn");
+    const forgotBtn = document.getElementById("forgotBtn");
+
+    let currentRole = "管理员";
+    let passwordVisible = false;
+
+    function updateGreeting() {
+      const hour = new Date().getHours();
+      if (hour < 6) greetingEl.textContent = "凌晨值守中 · 系统持续监控门店状态";
+      else if (hour < 12) greetingEl.textContent = "早安 · 开始今日门店经营巡检";
+      else if (hour < 18) greetingEl.textContent = "下午好 · 查看午晚市运营情况";
+      else greetingEl.textContent = "晚上好 · 收口今日经营数据";
+    }
+
+    function setRole(role) {
+      currentRole = role;
+      roleButtons.forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.role === role);
+      });
+      showMessage(`当前登录角色已切换为：${role}`, "success");
+    }
+
+    function togglePassword() {
+      passwordVisible = !passwordVisible;
+      passwordInput.type = passwordVisible ? "text" : "password";
+      togglePasswordBtn.textContent = passwordVisible ? "🙈" : "👁";
+    }
+
+    function showMessage(text, type = "success") {
+      messageEl.textContent = text;
+      messageEl.className = "message show " + type;
+    }
+
+    function hideMessage() {
+      messageEl.className = "message";
+      messageEl.textContent = "";
+    }
+
+    function fillDemo(type) {
+      if (type === "admin") {
+        accountInput.value = "admin";
+        passwordInput.value = "123456";
+        setRole("管理员");
+      } else {
+        accountInput.value = "manager01";
+        passwordInput.value = "123456";
+        setRole("门店经理");
+      }
+    }
+
+    roleButtons.forEach((btn) => {
+      btn.addEventListener("click", () => setRole(btn.dataset.role));
+    });
+
+    togglePasswordBtn.addEventListener("click", togglePassword);
+
+    fillButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        fillDemo(btn.dataset.fill);
+      });
+    });
+
+    forgotBtn.addEventListener("click", () => {
+      showMessage("这里可以接入“忘记密码”流程，例如跳转到短信/邮箱找回页面。", "success");
+    });
+
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      hideMessage();
+
+      const account = accountInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      if (!account) {
+        showMessage("请输入账号后再登录。", "error");
+        accountInput.focus();
+        return;
+      }
+
+      if (!password) {
+        showMessage("请输入密码后再登录。", "error");
+        passwordInput.focus();
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitText.textContent = "登录中...";
+
+      setTimeout(() => {
+        submitBtn.disabled = false;
+        submitText.textContent = "进入 RestaurantOS";
+
+        showMessage(
+          `登录请求已提交。\n角色：${currentRole}；账号：${account}；记住我：${rememberInput.checked ? "是" : "否"}。\n你可以把这里替换成真实接口请求，比如 POST /api/v1/auth/login。`,
+          "success"
+        );
+      }, 900);
+    });
+
+    updateGreeting();
+  </script>
+</body>
+</html>

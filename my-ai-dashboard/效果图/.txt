@@ -1,0 +1,917 @@
+这套代码目标是：
+
+先把 登录页 + dashboard 路由壳 + overview 页面 跑起来
+风格尽量贴近你现在的 RestaurantOS 设计
+先用 本地假登录 跑通链路
+后续你再把登录逻辑替换成真实 /api/v1/auth/login
+1）app/page.tsx
+import { redirect } from "next/navigation";
+
+export default function HomePage() {
+  redirect("/login");
+}
+2）app/login/page.tsx
+import AuthHeroPanel from "@/components/auth/AuthHeroPanel";
+import AuthLoginCard from "@/components/auth/AuthLoginCard";
+
+export default function LoginPage() {
+  return (
+    <main className="min-h-screen bg-[linear-gradient(180deg,#f8f5f2_0%,#f3efeb_100%)] p-4 md:p-6">
+      <div className="mx-auto grid min-h-[calc(100vh-2rem)] max-w-7xl grid-cols-1 gap-6 lg:grid-cols-[1.12fr_0.88fr]">
+        <AuthHeroPanel />
+        <div className="flex items-center">
+          <AuthLoginCard />
+        </div>
+      </div>
+    </main>
+  );
+}
+3）components/auth/AuthHeroPanel.tsx
+import {
+  ChefHat,
+  Sparkles,
+  LayoutDashboard,
+  Store,
+  ClipboardList,
+  UtensilsCrossed,
+  Lightbulb,
+  Users,
+} from "lucide-react";
+
+const modules = [
+  { label: "经营仪表盘", icon: LayoutDashboard },
+  { label: "门店运营", icon: Store },
+  { label: "订单中心", icon: ClipboardList },
+  { label: "桌台管理", icon: Users },
+  { label: "菜品分析", icon: UtensilsCrossed },
+  { label: "AI 建议", icon: Lightbulb },
+];
+
+export default function AuthHeroPanel() {
+  return (
+    <section className="overflow-hidden rounded-[30px] border border-white/70 bg-white/70 p-5 shadow-[0_10px_30px_rgba(48,37,28,0.08)] backdrop-blur md:p-7">
+      <header className="flex flex-col gap-4 border-b border-stone-200 pb-5 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-center gap-4">
+          <div className="grid h-14 w-14 place-items-center rounded-[18px] bg-[linear-gradient(135deg,#ff6b3d,#ff9a62)] text-white shadow-[0_8px_18px_rgba(255,107,61,0.28)]">
+            <ChefHat className="h-7 w-7" />
+          </div>
+          <div>
+            <h1 className="text-[30px] font-extrabold tracking-[-0.03em] text-stone-900">
+              RestaurantOS
+            </h1>
+            <p className="mt-1 text-sm text-stone-500">智能运营中心 · 登录入口</p>
+          </div>
+        </div>
+
+        <div className="inline-flex w-fit items-center rounded-full border border-stone-200 bg-white px-4 py-2 text-xs text-stone-600">
+          正在同步今日门店经营状态
+        </div>
+      </header>
+
+      <div className="grid grid-cols-1 gap-5 pt-6 xl:grid-cols-[1.05fr_0.95fr]">
+        <div className="rounded-[28px] bg-[linear-gradient(135deg,#2e2926,#463d37)] p-6 text-white shadow-[0_18px_42px_rgba(28,22,18,0.18)]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs text-white/85">
+            <Sparkles className="h-3.5 w-3.5" />
+            与当前 Restaurant 项目风格统一
+          </div>
+
+          <h2 className="mt-5 text-4xl font-extrabold leading-tight tracking-[-0.04em] md:text-5xl">
+            登录后快速进入经营仪表盘，
+            <br />
+            统一查看门店、订单与 AI 建议。
+          </h2>
+
+          <p className="mt-5 max-w-2xl text-sm leading-8 text-white/75 md:text-[15px]">
+            这一版登录页延续了你现在后台的暖米色底、橙色品牌强调、大圆角卡片和轻玻璃质感。
+            后续只需要把登录表单接到真实接口，再跳转到 overview 页面即可。
+          </p>
+
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+              <div className="text-xs text-white/60">今日营业额</div>
+              <div className="mt-2 text-[28px] font-extrabold tracking-[-0.03em]">¥12,860</div>
+              <div className="mt-1 text-xs text-white/60">较昨日 +12.4%</div>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+              <div className="text-xs text-white/60">在店人数</div>
+              <div className="mt-2 text-[28px] font-extrabold tracking-[-0.03em]">46</div>
+              <div className="mt-1 text-xs text-white/60">大厅 32 / 包间 14</div>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+              <div className="text-xs text-white/60">门店状态</div>
+              <div className="mt-2 text-[28px] font-extrabold tracking-[-0.03em]">营业中</div>
+              <div className="mt-1 text-xs text-white/60">3 条提醒待处理</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-5">
+          <div className="rounded-[24px] border border-stone-200 bg-white/85 p-5">
+            <h3 className="text-lg font-semibold text-stone-900">登录后可进入模块</h3>
+            <p className="mt-2 text-sm leading-7 text-stone-500">
+              与你当前后台菜单结构保持一致，方便后续直接接真实接口和权限控制。
+            </p>
+
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              {modules.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div
+                    key={item.label}
+                    className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm font-medium text-stone-700"
+                  >
+                    <div className="grid h-9 w-9 place-items-center rounded-xl bg-white text-stone-600 shadow-sm">
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <span>{item.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="rounded-[24px] border border-stone-200 bg-white/85 p-5">
+            <h3 className="text-lg font-semibold text-stone-900">页面接入说明</h3>
+            <ul className="mt-4 space-y-3 text-sm leading-7 text-stone-600">
+              <li className="flex gap-3">
+                <span className="mt-2 h-2 w-2 rounded-full bg-orange-500" />
+                <span>当前第一批先用本地假登录跑通页面跳转和 dashboard 壳子。</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="mt-2 h-2 w-2 rounded-full bg-orange-500" />
+                <span>后续把登录提交替换成真实的 <code>/api/v1/auth/login</code> 即可。</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="mt-2 h-2 w-2 rounded-full bg-orange-500" />
+                <span>overview 先做静态结构，第二批再接 stores 和 dashboard overview 真接口。</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+4）components/auth/AuthLoginCard.tsx
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { BellRing, Eye, EyeOff, ArrowRight } from "lucide-react";
+
+type RoleType = "管理员" | "门店经理" | "运营人员";
+
+const roleOptions: RoleType[] = ["管理员", "门店经理", "运营人员"];
+
+export default function AuthLoginCard() {
+  const router = useRouter();
+
+  const [role, setRole] = useState<RoleType>("管理员");
+  const [account, setAccount] = useState("admin");
+  const [password, setPassword] = useState("123456");
+  const [remember, setRemember] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  useEffect(() => {
+    const token = window.localStorage.getItem("restaurant_demo_token");
+    if (token) {
+      router.replace("/overview");
+    }
+  }, [router]);
+
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 6) return "凌晨值守中";
+    if (hour < 12) return "早安，开始今日运营";
+    if (hour < 18) return "下午好，查看午晚市状态";
+    return "晚上好，收口今日经营数据";
+  }, []);
+
+  const fillDemo = (type: "admin" | "manager") => {
+    if (type === "admin") {
+      setRole("管理员");
+      setAccount("admin");
+      setPassword("123456");
+    } else {
+      setRole("门店经理");
+      setAccount("manager01");
+      setPassword("123456");
+    }
+
+    setMessage({
+      type: "success",
+      text: `已切换为${type === "admin" ? "管理员" : "门店经理"}演示账号。`,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setMessage(null);
+
+    const username = account.trim();
+    const pwd = password.trim();
+
+    if (!username) {
+      setMessage({ type: "error", text: "请输入账号后再登录。" });
+      return;
+    }
+
+    if (!pwd) {
+      setMessage({ type: "error", text: "请输入密码后再登录。" });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 900));
+
+      window.localStorage.setItem("restaurant_demo_token", "demo-token");
+      window.localStorage.setItem(
+        "restaurant_demo_user",
+        JSON.stringify({
+          id: 1,
+          username,
+          display_name: role === "管理员" ? "系统管理员" : role,
+          role,
+        }),
+      );
+      window.localStorage.setItem("restaurant_selected_store_id", "1");
+
+      setMessage({
+        type: "success",
+        text: `登录成功，正在进入后台。当前角色：${role}`,
+      });
+
+      router.push("/overview");
+    } catch {
+      setMessage({
+        type: "error",
+        text: "登录失败，请稍后重试。",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section className="w-full rounded-[30px] border border-white/70 bg-white/75 p-5 shadow-[0_10px_30px_rgba(48,37,28,0.08)] backdrop-blur md:p-7">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div>
+          <h2 className="text-3xl font-extrabold tracking-[-0.03em] text-stone-900 md:text-4xl">
+            欢迎登录
+          </h2>
+          <p className="mt-2 text-sm text-stone-500">
+            {greeting}，请输入账号信息进入 RestaurantOS 智能运营中心
+          </p>
+        </div>
+
+        <div className="inline-flex w-fit items-center gap-2 rounded-2xl border border-orange-100 bg-orange-50 px-3 py-2 text-xs text-orange-700">
+          <BellRing className="h-4 w-4" />
+          当前有 3 条运营提醒
+        </div>
+      </div>
+
+      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        {roleOptions.map((item) => (
+          <button
+            key={item}
+            type="button"
+            onClick={() => {
+              setRole(item);
+              setMessage({
+                type: "success",
+                text: `当前登录角色已切换为：${item}`,
+              });
+            }}
+            className={[
+              "rounded-2xl border px-4 py-3 text-sm font-semibold transition",
+              role === item
+                ? "border-orange-200 bg-[linear-gradient(135deg,rgba(255,107,61,0.10),rgba(255,107,61,0.03))] text-orange-700"
+                : "border-stone-200 bg-white text-stone-600 hover:-translate-y-0.5 hover:shadow-sm",
+            ].join(" ")}
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+
+      <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-stone-700">账号</label>
+          <input
+            type="text"
+            value={account}
+            onChange={(e) => setAccount(e.target.value)}
+            placeholder="请输入账号 / 用户名 / 邮箱"
+            className="h-14 w-full rounded-2xl border border-stone-200 bg-white px-4 text-sm outline-none transition focus:border-orange-300 focus:ring-4 focus:ring-orange-100"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-stone-700">密码</label>
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="请输入登录密码"
+              className="h-14 w-full rounded-2xl border border-stone-200 bg-white px-4 pr-14 text-sm outline-none transition focus:border-orange-300 focus:ring-4 focus:ring-orange-100"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-3 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-xl bg-stone-100 text-stone-500 transition hover:bg-stone-200 hover:text-stone-700"
+              aria-label="切换密码显示"
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <label className="inline-flex items-center gap-2 text-sm text-stone-600">
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="h-4 w-4 accent-orange-500"
+            />
+            <span>记住我</span>
+          </label>
+
+          <button
+            type="button"
+            onClick={() =>
+              setMessage({
+                type: "success",
+                text: "这里后续可以接入忘记密码流程，例如短信或邮箱找回。",
+              })
+            }
+            className="text-sm font-semibold text-orange-600 hover:text-orange-700"
+          >
+            忘记密码？
+          </button>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#ff6b3d,#ff8a5b)] text-sm font-bold text-white shadow-[0_10px_22px_rgba(255,107,61,0.25)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          <span>{loading ? "登录中..." : "进入 RestaurantOS"}</span>
+          {!loading && <ArrowRight className="h-4 w-4" />}
+        </button>
+
+        {message && (
+          <div
+            className={[
+              "rounded-2xl border px-4 py-3 text-sm leading-7",
+              message.type === "success"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                : "border-red-200 bg-red-50 text-red-700",
+            ].join(" ")}
+          >
+            {message.text}
+          </div>
+        )}
+      </form>
+
+      <div className="my-6 flex items-center gap-3">
+        <div className="h-px flex-1 bg-stone-200" />
+        <span className="text-xs text-stone-400">快捷入口</span>
+        <div className="h-px flex-1 bg-stone-200" />
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <button
+          type="button"
+          onClick={() => fillDemo("admin")}
+          className="rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm font-semibold text-stone-700 transition hover:-translate-y-0.5 hover:bg-stone-50"
+        >
+          使用管理员演示账号
+        </button>
+        <button
+          type="button"
+          onClick={() => fillDemo("manager")}
+          className="rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm font-semibold text-stone-700 transition hover:-translate-y-0.5 hover:bg-stone-50"
+        >
+          使用经理演示账号
+        </button>
+      </div>
+
+      <div className="mt-6 rounded-[24px] bg-[linear-gradient(135deg,#2e2926,#443b34)] p-5 text-white">
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-base font-semibold">演示账号</h3>
+          <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[11px] text-white/75">
+            Demo
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div className="text-xs text-white/55">管理员账号</div>
+            <div className="mt-1 text-sm font-bold">admin</div>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div className="text-xs text-white/55">管理员密码</div>
+            <div className="mt-1 text-sm font-bold">123456</div>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div className="text-xs text-white/55">经理账号</div>
+            <div className="mt-1 text-sm font-bold">manager01</div>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div className="text-xs text-white/55">经理密码</div>
+            <div className="mt-1 text-sm font-bold">123456</div>
+          </div>
+        </div>
+      </div>
+
+      <p className="mt-5 text-center text-xs leading-6 text-stone-400">
+        当前是第一批静态接入版。后续把本地假登录替换成真实接口后，
+        就能进入完整业务链路。
+      </p>
+    </section>
+  );
+}
+5）app/(dashboard)/layout.tsx
+"use client";
+
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  LayoutDashboard,
+  Store,
+  ClipboardList,
+  UtensilsCrossed,
+  Lightbulb,
+  Settings,
+  Users,
+  LogOut,
+  ChefHat,
+  BellRing,
+} from "lucide-react";
+
+const navItems = [
+  { href: "/overview", label: "仪表盘", icon: LayoutDashboard },
+  { href: "/store-ops", label: "门店运营", icon: Store },
+  { href: "/orders", label: "订单中心", icon: ClipboardList },
+  { href: "/menu", label: "菜品分析", icon: UtensilsCrossed },
+  { href: "/ai-insights", label: "AI 建议", icon: Lightbulb },
+  { href: "/members", label: "会员营销", icon: Users },
+  { href: "/settings", label: "系统设置", icon: Settings },
+];
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [ready, setReady] = useState(false);
+  const [displayName, setDisplayName] = useState("系统管理员");
+
+  useEffect(() => {
+    const token = window.localStorage.getItem("restaurant_demo_token");
+    const rawUser = window.localStorage.getItem("restaurant_demo_user");
+
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+
+    if (rawUser) {
+      try {
+        const parsed = JSON.parse(rawUser) as { display_name?: string };
+        if (parsed.display_name) {
+          setDisplayName(parsed.display_name);
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    setReady(true);
+  }, [router]);
+
+  const currentTime = useMemo(() => {
+    const now = new Date();
+    return now.toLocaleString("zh-CN", {
+      month: "2-digit",
+      day: "2-digit",
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }, []);
+
+  const handleLogout = () => {
+    window.localStorage.removeItem("restaurant_demo_token");
+    window.localStorage.removeItem("restaurant_demo_user");
+    window.localStorage.removeItem("restaurant_selected_store_id");
+    router.replace("/login");
+  };
+
+  if (!ready) {
+    return (
+      <div className="min-h-screen bg-[#f6f3f0] p-4">
+        <div className="grid min-h-[calc(100vh-2rem)] place-items-center rounded-[28px] border border-white/70 bg-white/70 text-stone-500 shadow-sm backdrop-blur">
+          正在进入后台...
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[linear-gradient(180deg,#f8f5f2_0%,#f3efeb_100%)] p-4">
+      <div className="grid min-h-[calc(100vh-2rem)] grid-cols-1 gap-4 xl:grid-cols-[240px_1fr]">
+        <aside className="flex flex-col rounded-[28px] border border-white/70 bg-white/70 p-4 shadow-[0_10px_30px_rgba(48,37,28,0.08)] backdrop-blur">
+          <div className="flex items-center gap-3 border-b border-stone-200 px-2 pb-5">
+            <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[linear-gradient(135deg,#ff6b3d,#ff9a62)] text-white shadow-[0_8px_18px_rgba(255,107,61,0.28)]">
+              <ChefHat className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="text-xl font-extrabold tracking-[-0.03em] text-stone-900">
+                RestaurantOS
+              </div>
+              <div className="text-xs text-stone-500">智能运营中心</div>
+            </div>
+          </div>
+
+          <div className="mt-5 text-[11px] uppercase tracking-[0.12em] text-stone-400">
+            Overview
+          </div>
+
+          <nav className="mt-3 space-y-2">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const active =
+                pathname === item.href || pathname.startsWith(`${item.href}/`);
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={[
+                    "flex items-center gap-3 rounded-2xl px-3 py-3 text-sm transition",
+                    active
+                      ? "border border-orange-100 bg-[linear-gradient(135deg,rgba(255,107,61,0.12),rgba(255,107,61,0.04))] font-semibold text-orange-700"
+                      : "text-stone-600 hover:bg-white hover:text-stone-900",
+                  ].join(" ")}
+                >
+                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-stone-100">
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="mt-auto rounded-[22px] bg-[linear-gradient(135deg,#2e2926,#463d37)] p-4 text-white">
+            <div className="text-sm font-semibold">今日概况</div>
+            <p className="mt-2 text-xs leading-6 text-white/70">
+              AI 已生成 3 条经营提醒，建议优先关注高峰排队与库存补货。
+            </p>
+            <button
+              onClick={handleLogout}
+              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-semibold text-stone-900 transition hover:-translate-y-0.5"
+            >
+              <LogOut className="h-4 w-4" />
+              退出登录
+            </button>
+          </div>
+        </aside>
+
+        <section className="flex min-w-0 flex-col gap-4">
+          <header className="rounded-[28px] border border-white/70 bg-white/70 p-4 shadow-[0_10px_30px_rgba(48,37,28,0.08)] backdrop-blur">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex items-center gap-3">
+                <div className="grid h-11 w-11 place-items-center rounded-full bg-orange-100 font-bold text-orange-700">
+                  {displayName.slice(0, 1)}
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-stone-900">海味小馆 · 朝阳门店</div>
+                  <div className="text-xs text-stone-500">{displayName} · 店长视图</div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3 text-xs text-stone-600">
+                <span className="rounded-full border border-stone-200 bg-white px-3 py-2">
+                  {currentTime}
+                </span>
+                <span className="rounded-full border border-stone-200 bg-white px-3 py-2">
+                  26℃
+                </span>
+                <span className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-2 text-emerald-700">
+                  ● 营业中
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full border border-orange-100 bg-orange-50 px-3 py-2 text-orange-700">
+                  <BellRing className="h-3.5 w-3.5" />
+                  3 条提醒
+                </span>
+              </div>
+            </div>
+          </header>
+
+          <main className="min-w-0 flex-1 rounded-[28px] border border-white/70 bg-white/70 p-4 shadow-[0_10px_30px_rgba(48,37,28,0.08)] backdrop-blur">
+            {children}
+          </main>
+        </section>
+      </div>
+    </div>
+  );
+}
+6）app/(dashboard)/overview/page.tsx
+export default function OverviewPage() {
+  const feed = [
+    {
+      title: "后厨备餐完成",
+      desc: "外卖订单 #W204 已完成装袋，等待骑手取餐。",
+      tag: "备餐",
+    },
+    {
+      title: "新会员注册",
+      desc: "小程序渠道新增会员 1 人，已自动进入欢迎券流程。",
+      tag: "会员",
+    },
+    {
+      title: "桌位状态更新",
+      desc: "5 号桌已清台，可再次待客。",
+      tag: "桌台",
+    },
+    {
+      title: "晚市预警",
+      desc: "18:00 - 19:00 预计排队峰值 8 桌，建议前厅提前补位。",
+      tag: "预警",
+    },
+  ];
+
+  const tasks = [
+    {
+      title: "低库存提醒",
+      time: "17:30",
+      desc: "肥牛、金针菇接近安全库存，建议立即检查库存并发起采购。",
+      tone: "orange",
+    },
+    {
+      title: "闭店巡检",
+      time: "22:00",
+      desc: "系统将在闭店前自动生成巡检清单，并提醒确认燃气、空调与监控状态。",
+      tone: "blue",
+    },
+  ];
+
+  const aiSummary = [
+    {
+      title: "热销趋势",
+      desc: "香辣肥牛锅、手打柠檬茶、虾滑组合位列今日销量前三。",
+      color: "bg-emerald-500",
+    },
+    {
+      title: "高峰预警",
+      desc: "18:00 - 19:00 预计排队峰值 8 桌，建议提前调整前厅排班。",
+      color: "bg-amber-500",
+    },
+    {
+      title: "库存提醒",
+      desc: "肥牛、金针菇库存低于安全阈值，建议 17:30 前完成补货确认。",
+      color: "bg-orange-500",
+    },
+    {
+      title: "服务异常",
+      desc: "7 号桌出餐耗时 26 分钟，高于门店均值，请关注后厨节拍。",
+      color: "bg-red-500",
+    },
+  ];
+
+  return (
+    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_360px]">
+      <section className="space-y-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h1 className="text-4xl font-extrabold tracking-[-0.04em] text-stone-900">
+              经营仪表盘
+            </h1>
+            <p className="mt-2 text-sm text-stone-500">
+              实时查看门店营收、客流、桌台状态与 AI 运营建议
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <button className="rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm font-semibold text-stone-700">
+              导出日报
+            </button>
+            <button className="rounded-2xl bg-[linear-gradient(135deg,#ff6b3d,#ff8a5b)] px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_22px_rgba(255,107,61,0.25)]">
+              新增运营任务
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="overflow-hidden rounded-[26px] bg-[linear-gradient(135deg,#ff6b3d,#ff8f63)] p-6 text-white shadow-[0_16px_34px_rgba(255,107,61,0.22)]">
+            <div className="flex items-start justify-between gap-4">
+              <div className="grid h-24 w-24 place-items-center rounded-full border-8 border-white/20 bg-white/10">
+                <div className="h-14 w-14 rounded-full bg-white/90" />
+              </div>
+
+              <div className="flex-1">
+                <div className="text-right text-sm text-white/85">今日经营额</div>
+                <div className="mt-1 text-6xl font-extrabold tracking-[-0.05em]">¥12,860</div>
+                <div className="mt-2 text-sm text-white/85">较昨日 +12.4%</div>
+                <div className="mt-5 text-2xl font-bold">门店营业额</div>
+                <p className="mt-2 text-sm text-white/85">
+                  午市表现稳定，晚市预计继续增长
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-4 text-sm font-semibold text-white/90">
+                <span>328 订单</span>
+                <span>214 到店</span>
+                <span>¥39.2 客单价</span>
+              </div>
+              <button className="rounded-2xl bg-white px-4 py-3 text-sm font-bold text-[#4a2b1f]">
+                查看详情
+              </button>
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-[26px] bg-[linear-gradient(135deg,#7c3aed,#b06cff)] p-6 text-white shadow-[0_16px_34px_rgba(124,58,237,0.22)]">
+            <div className="flex items-start justify-between gap-4">
+              <div className="grid h-24 w-24 place-items-center rounded-full border-8 border-white/20 bg-white/10">
+                <div className="h-14 w-14 rounded-full bg-white/90" />
+              </div>
+
+              <div className="flex-1">
+                <div className="text-right text-sm text-white/85">门店实时状态</div>
+                <div className="mt-1 text-6xl font-extrabold tracking-[-0.05em]">46</div>
+                <div className="mt-2 text-sm text-white/85">实时更新中</div>
+                <div className="mt-5 text-2xl font-bold">当前在店人数</div>
+                <p className="mt-2 text-sm text-white/85">
+                  大厅 32 人，包间 14 人，晚高峰预热中
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-4 text-sm font-semibold text-white/90">
+                <span>12 空桌</span>
+                <span>30 占用</span>
+                <span>4 排队</span>
+              </div>
+              <button className="rounded-2xl bg-white px-4 py-3 text-sm font-bold text-[#4a2b1f]">
+                查看桌态
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.05fr_1fr]">
+          <div className="rounded-[24px] border border-stone-200 bg-white/85 p-5">
+            <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <h3 className="text-xl font-semibold text-stone-900">门店实时状态</h3>
+              <div className="flex flex-wrap gap-2">
+                <button className="rounded-xl border border-orange-200 bg-orange-50 px-3 py-2 text-sm font-semibold text-orange-700">
+                  大厅 A 区
+                </button>
+                <button className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-500">
+                  大厅 B 区
+                </button>
+                <button className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-500">
+                  后厨
+                </button>
+              </div>
+            </div>
+
+            <div className="relative flex min-h-[280px] items-end overflow-hidden rounded-[20px] bg-[linear-gradient(180deg,#1d2b1f,#29462d)] p-5 text-white">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(47,255,126,0.22),transparent_28%)]" />
+              <div className="absolute inset-0 bg-[linear-gradient(transparent_96%,rgba(255,255,255,0.05)_96%)] bg-[length:100%_18px]" />
+              <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_96%,rgba(255,255,255,0.04)_96%)] bg-[length:18px_100%]" />
+
+              <div className="absolute left-1/2 top-1/2 grid h-16 w-16 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-2xl text-stone-900 shadow-lg">
+                ▶
+              </div>
+
+              <div className="relative z-10 flex w-full flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <div className="text-2xl font-bold">晚高峰可视监测</div>
+                  <p className="mt-2 text-sm text-white/75">
+                    当前拥挤度 78%，建议开放 2 张备用桌
+                  </p>
+                </div>
+                <button className="w-fit rounded-2xl bg-white px-4 py-3 text-sm font-bold text-stone-900">
+                  查看详情
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-[24px] border border-stone-200 bg-white/85 p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-stone-900">AI 运营摘要</h3>
+              <button className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-600">
+                刷新建议
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {aiSummary.map((item) => (
+                <div
+                  key={item.title}
+                  className="flex gap-3 border-b border-stone-200 pb-4 last:border-b-0 last:pb-0"
+                >
+                  <span className={`mt-2 h-2.5 w-2.5 rounded-full ${item.color}`} />
+                  <div>
+                    <div className="text-base font-semibold text-stone-900">{item.title}</div>
+                    <p className="mt-1 text-sm leading-7 text-stone-600">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside className="space-y-4">
+        <div className="rounded-[24px] border border-stone-200 bg-white/85 p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-2xl font-bold tracking-[-0.03em] text-stone-900">运营动态</h3>
+            <button className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs font-semibold text-stone-600">
+              查看全部
+            </button>
+          </div>
+
+          <div className="max-h-[420px] space-y-3 overflow-auto pr-1">
+            {feed.map((item) => (
+              <div
+                key={item.title + item.desc}
+                className="rounded-2xl border border-stone-200 bg-stone-50 p-4"
+              >
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <div className="text-base font-semibold text-stone-900">{item.title}</div>
+                  <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-600">
+                    {item.tag}
+                  </span>
+                </div>
+                <p className="text-sm leading-7 text-stone-500">{item.desc}</p>
+                <div className="mt-2 text-xs text-stone-400">刚刚</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-[24px] border border-stone-200 bg-white/85 p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-2xl font-bold tracking-[-0.03em] text-stone-900">
+              自动任务与告警
+            </h3>
+            <button className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs font-semibold text-stone-600">
+              任务配置
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {tasks.map((item) => (
+              <div
+                key={item.title}
+                className="rounded-2xl border border-stone-200 bg-stone-50 p-4"
+              >
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <div className="text-base font-semibold text-stone-900">{item.title}</div>
+                  <span
+                    className={[
+                      "rounded-full px-2.5 py-1 text-[11px] font-bold",
+                      item.tone === "orange"
+                        ? "bg-orange-50 text-orange-600"
+                        : "bg-blue-50 text-blue-600",
+                    ].join(" ")}
+                  >
+                    {item.time}
+                  </span>
+                </div>
+                <p className="text-sm leading-7 text-stone-500">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+你现在贴完这 6 个文件后，项目会形成这条最小链路：
+
+/ → 自动跳 /login
+/login → 演示登录成功后跳 /overview
+/overview → 进入 dashboard 壳子和仪表盘页面
+退出登录 → 回 /login
